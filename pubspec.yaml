@@ -12,7 +12,7 @@ dependencies:
   flutter_map: ^3.0.0
   flutter_map_geojson: ^1.0.1
   latlong2: ^0.8.1
-  flutter_map_tappable_polyline: ^4.0.0+1
+  point_in_polygon: ^1.0.0
   collection: ^1.17.1
   get_it: ^7.6.0
 

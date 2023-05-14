@@ -7,6 +7,7 @@ import 'package:geo_quiz/shared/services/geojson_service.dart';
 import 'package:geo_quiz/shared/services/pref_service.dart';
 import 'package:get_it/get_it.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:point_in_polygon/point_in_polygon.dart';
 
 class QuizScreen extends StatefulWidget {
   final bool showOsm;
@@ -26,8 +27,6 @@ class QuizScreenState extends State<QuizScreen> {
   late final DateTime _startTime;
 
   String? _selection;
-
-  //late final Future<GeoJsonParser> _futureGeoJsonParser;
 
   Future<GeoJsonParser> _loadGeoJson() async {
     final parser = GeoJsonParser(
@@ -49,7 +48,6 @@ class QuizScreenState extends State<QuizScreen> {
 
   @override
   void initState() {
-    //_futureGeoJsonParser = _loadGeoJson();
     _startTime = DateTime.now();
     super.initState();
   }
@@ -60,7 +58,7 @@ class QuizScreenState extends State<QuizScreen> {
       future: _loadGeoJson(),
       builder: (context, snapshot) {
         if (snapshot.data != null) {
-          final geoJson = snapshot.data!;
+          final geoJsonParser = snapshot.data!;
           return Scaffold(
             appBar: AppBar(
               title: Wrap(
@@ -104,6 +102,8 @@ class QuizScreenState extends State<QuizScreen> {
                   ),
                   slideOnBoundaries: true,
                   boundsOptions: const FitBoundsOptions(inside: true),
+                  onTap: (_, point) async =>
+                      _onMapPressed(geoJsonParser, point),
                 ),
                 children: [
                   if (widget.showOsm)
@@ -112,7 +112,7 @@ class QuizScreenState extends State<QuizScreen> {
                           'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                     ),
                   PolygonLayer(
-                    polygons: geoJson.polygons,
+                    polygons: geoJsonParser.polygons,
                     // polygonCulling: true, // throws exceptions of hot reload
                   ),
                   // PolylineLayer(polylines: geoJson.polylines),
@@ -134,8 +134,7 @@ class QuizScreenState extends State<QuizScreen> {
 
   Future<void> _openCountryList() async {
     final service = await GetIt.I.getAsync<GeoJsonService>();
-    final jsonList = service.json['features'] as List<dynamic>;
-    final countries = jsonList
+    final countries = service.features
         .map((e) => e['properties']['name'] as String)
         .sorted()
         .toList(growable: false);
@@ -143,5 +142,29 @@ class QuizScreenState extends State<QuizScreen> {
       Navigator.of(context),
       countries,
     ) as String?;
+  }
+
+  Future<void> _onMapPressed(GeoJsonParser parser, LatLng latLng) async {
+    final point = Point(x: latLng.latitude, y: latLng.longitude);
+    final geoJsonService = await GetIt.I.getAsync<GeoJsonService>();
+    final jsonCountries = geoJsonService.features;
+
+    Map? jsonCountry;
+    for (var i = 0; i < parser.polygons.length; i++) {
+      final points = parser.polygons[i].points
+          .map((e) => Point(x: e.latitude, y: e.longitude))
+          .toList(growable: false);
+
+      if (Poly.isPointInPolygon(point, points)) {
+        print('Country found');
+        jsonCountry = jsonCountries[i];
+        break;
+      }
+      if (jsonCountry == null) {
+        debugPrint('No country pressed');
+        return;
+      }
+      debugPrint(jsonCountry['properties']['name']);
+    }
   }
 }
