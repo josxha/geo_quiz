@@ -43,7 +43,7 @@ class StartScreen extends StatelessWidget {
                           child: Row(
                             children: [
                               Icon(Icons.play_circle),
-                              Spacer(),
+                              SizedBox(width: 16),
                               Text(
                                 'Start game',
                                 style: TextStyle(fontSize: 20),
@@ -60,9 +60,26 @@ class StartScreen extends StatelessWidget {
                           child: Row(
                             children: [
                               Icon(Icons.settings),
-                              Spacer(),
+                              SizedBox(width: 16),
                               Text(
                                 'Settings',
+                                style: TextStyle(fontSize: 20),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      ElevatedButton(
+                        onPressed: () => Routes.about.push(),
+                        child: const Padding(
+                          padding: EdgeInsets.all(16),
+                          child: Row(
+                            children: [
+                              Icon(Icons.settings),
+                              SizedBox(width: 16),
+                              Text(
+                                'About',
                                 style: TextStyle(fontSize: 20),
                               ),
                             ],

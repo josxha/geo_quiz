@@ -66,27 +66,40 @@ class QuizScreenState extends State<QuizScreen> {
           return Scaffold(
             appBar: AppBar(
               title: Wrap(
+                spacing: 16,
+                runSpacing: 16,
                 children: [
-                  if (_prefService.showTime) ...[
-                    const Icon(Icons.access_alarm),
-                    const SizedBox(width: 8),
-                    StreamBuilder(
-                      stream: Stream.periodic(const Duration(seconds: 1)),
-                      builder: (context, snapshot) {
-                        final duration = DateTime.now().difference(_startTime);
-                        final min = duration.inMinutes;
-                        final sec = (duration.inSeconds % 60)
-                            .toString()
-                            .padLeft(2, '0');
-                        return Text('$min:$sec');
-                      },
+                  if (_prefService.showTime)
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.access_alarm),
+                        const SizedBox(width: 8),
+                        StreamBuilder(
+                          stream: Stream.periodic(const Duration(seconds: 1)),
+                          builder: (context, snapshot) {
+                            final duration =
+                                DateTime.now().difference(_startTime);
+                            final min = duration.inMinutes;
+                            final sec = (duration.inSeconds % 60)
+                                .toString()
+                                .padLeft(2, '0');
+                            return Text('$min:$sec');
+                          },
+                        ),
+                      ],
                     ),
-                    const SizedBox(width: 8),
-                    const Icon(Icons.stacked_bar_chart_outlined),
-                    Text(
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.stacked_bar_chart_outlined),
+                      const SizedBox(width: 8),
+                      Text(
                         '${_states.values.where((e) => e.$1.isFinished()).length}/'
-                        '${geoJsonParser.polygons.length}'),
-                  ],
+                        '${geoJsonParser.polygons.length}',
+                      ),
+                    ],
+                  )
                 ],
               ),
             ),
@@ -192,14 +205,17 @@ class QuizScreenState extends State<QuizScreen> {
     debugPrint(clickedCountry);
 
     // abort if guessed too much
-    final attempts = _states[clickedCountry]?.$2 ?? 0;
+    final state = _states[clickedCountry];
+    final attempts = state?.$2 ?? 0;
     if (attempts >= _prefService.maxTries) return;
+    if (state?.$1.isFinished() ?? false) return;
 
     // get guess if selection is null
     if (_selection == null) {
       final selection = await _openCountryList();
       _selection = selection;
     }
+    if (_selection == null) return;
 
     // check and show the result
     final isCorrect = _selection == clickedCountry;

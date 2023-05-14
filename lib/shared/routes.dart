@@ -1,5 +1,6 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:geo_quiz/about_screen/about_screen.dart';
 import 'package:geo_quiz/country_list/country_list.dart';
 import 'package:geo_quiz/invalid_route_screen.dart';
 import 'package:geo_quiz/main.dart';
@@ -11,7 +12,8 @@ enum Routes {
   start('/'),
   quiz('/quiz'),
   countryList('/quiz/list'),
-  settings('/settings');
+  settings('/settings'),
+  about('/about');
 
   final String name;
 
@@ -67,6 +69,8 @@ enum Routes {
         return CountryList(args! as List<String>);
       case Routes.settings:
         return const SettingsScreen();
+      case Routes.about:
+        return const AboutScreen();
       case null:
         return InvalidRouteScreen(name);
     }
