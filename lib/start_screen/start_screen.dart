@@ -76,7 +76,7 @@ class StartScreen extends StatelessWidget {
                           padding: EdgeInsets.all(16),
                           child: Row(
                             children: [
-                              Icon(Icons.settings),
+                              Icon(Icons.help),
                               SizedBox(width: 16),
                               Text(
                                 'About',

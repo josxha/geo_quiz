@@ -15,6 +15,7 @@ dependencies:
   point_in_polygon: ^1.0.0
   collection: ^1.17.1
   get_it: ^7.6.0
+  package_info_plus: ^4.0.0
 
 dev_dependencies:
   total_lints: ^2.19.0 # very strict set of lints

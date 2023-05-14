@@ -104,7 +104,7 @@ class QuizScreenState extends State<QuizScreen> {
               ),
             ),
             floatingActionButton: FloatingActionButton.extended(
-              label: const Text('Ländernamen'),
+              label: const Text('Country list'),
               icon: const Icon(Icons.flag),
               onPressed: _onCountryListButtonClicked,
             ),
