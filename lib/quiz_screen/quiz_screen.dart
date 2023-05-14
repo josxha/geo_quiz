@@ -72,7 +72,11 @@ class QuizScreenState extends State<QuizScreen> {
                       stream: Stream.periodic(const Duration(seconds: 1)),
                       builder: (context, snapshot) {
                         final duration = DateTime.now().difference(_startTime);
-                        return Text('${duration.inSeconds}s');
+                        final min = duration.inMinutes;
+                        final sec = (duration.inSeconds % 60)
+                            .toString()
+                            .padLeft(2, '0');
+                        return Text('$min:$sec');
                       },
                     ),
                   ],
