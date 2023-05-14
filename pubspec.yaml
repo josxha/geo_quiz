@@ -13,10 +13,9 @@ dependencies:
   flutter_map_geojson: ^1.0.1
   latlong2: ^0.8.1
   flutter_map_tappable_polyline: ^4.0.0+1
+  collection: ^1.17.1
 
 dev_dependencies:
-  flutter_test:
-    sdk: flutter
   total_lints: ^2.19.0 # very strict set of lints
 
 dependency_overrides:
