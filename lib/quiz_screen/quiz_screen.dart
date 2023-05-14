@@ -2,6 +2,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_geojson/flutter_map_geojson.dart';
+import 'package:geo_quiz/quiz_screen/country_polygon.dart';
 import 'package:geo_quiz/shared/routes.dart';
 import 'package:geo_quiz/shared/services/geojson_service.dart';
 import 'package:geo_quiz/shared/services/pref_service.dart';
@@ -24,6 +25,8 @@ class QuizScreen extends StatefulWidget {
 class QuizScreenState extends State<QuizScreen> {
   final _prefService = GetIt.I<PrefService>();
   final _controller = MapController();
+  final _states = <String, (CountryState, int)>{};
+  late Future<GeoJsonParser> _futureGeoJson;
   late final DateTime _startTime;
 
   String? _selection;
@@ -31,13 +34,12 @@ class QuizScreenState extends State<QuizScreen> {
   Future<GeoJsonParser> _loadGeoJson() async {
     final parser = GeoJsonParser(
       polygonCreationCallback: (points, holePointsList, properties) {
-        return Polygon(
+        return CountryPolygon(
           points: points,
-          color: Colors.lightGreen,
-          borderStrokeWidth: 0.5,
-          borderColor: Colors.black,
-          isFilled: true,
-          //label: properties['name'],
+          holePointsList: holePointsList,
+          properties: properties,
+          state: _states[properties['name']]?.$1 ?? CountryState.unset,
+          //showLabel: true,
         );
       },
     );
@@ -49,13 +51,14 @@ class QuizScreenState extends State<QuizScreen> {
   @override
   void initState() {
     _startTime = DateTime.now();
+    _futureGeoJson = _loadGeoJson();
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<GeoJsonParser>(
-      future: _loadGeoJson(),
+      future: _futureGeoJson,
       builder: (context, snapshot) {
         if (snapshot.data != null) {
           final geoJsonParser = snapshot.data!;
@@ -77,6 +80,11 @@ class QuizScreenState extends State<QuizScreen> {
                         return Text('$min:$sec');
                       },
                     ),
+                    const SizedBox(width: 8),
+                    const Icon(Icons.stacked_bar_chart_outlined),
+                    Text(
+                        '${_states.values.where((e) => e.$1.isFinished()).length}/'
+                        '${geoJsonParser.polygons.length}'),
                   ],
                 ],
               ),
@@ -84,41 +92,58 @@ class QuizScreenState extends State<QuizScreen> {
             floatingActionButton: FloatingActionButton.extended(
               label: const Text('Ländernamen'),
               icon: const Icon(Icons.flag),
-              onPressed: _openCountryList,
+              onPressed: _onCountryListButtonClicked,
             ),
-            body: ColoredBox(
-              color: const Color.fromRGBO(170, 211, 223, 1),
-              child: FlutterMap(
-                mapController: _controller,
-                options: MapOptions(
-                  zoom: 2.5,
-                  maxZoom: 6,
-                  minZoom: 1,
-                  interactiveFlags:
-                      InteractiveFlag.all & ~InteractiveFlag.rotate,
-                  maxBounds: LatLngBounds(
-                    LatLng(-60, -180),
-                    LatLng(90, 180),
-                  ),
-                  slideOnBoundaries: true,
-                  boundsOptions: const FitBoundsOptions(inside: true),
-                  onTap: (_, point) async =>
-                      _onMapPressed(geoJsonParser, point),
-                ),
-                children: [
-                  if (widget.showOsm)
-                    TileLayer(
-                      urlTemplate:
-                          'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+            body: Column(
+              children: [
+                if (_selection != null)
+                  ColoredBox(
+                    color: Colors.white,
+                    child: Padding(
+                      padding: const EdgeInsets.all(8),
+                      child: Text(
+                        'Ausgewählt: $_selection',
+                        style: const TextStyle(fontSize: 20),
+                      ),
                     ),
-                  PolygonLayer(
-                    polygons: geoJsonParser.polygons,
-                    // polygonCulling: true, // throws exceptions of hot reload
                   ),
-                  // PolylineLayer(polylines: geoJson.polylines),
-                  // MarkerLayer(markers: geoJson.markers),
-                ],
-              ),
+                Expanded(
+                  child: ColoredBox(
+                    color: const Color.fromRGBO(170, 211, 223, 1),
+                    child: FlutterMap(
+                      mapController: _controller,
+                      options: MapOptions(
+                        zoom: 2.5,
+                        maxZoom: 6,
+                        minZoom: 1,
+                        interactiveFlags:
+                            InteractiveFlag.all & ~InteractiveFlag.rotate,
+                        maxBounds: LatLngBounds(
+                          LatLng(-60, -180),
+                          LatLng(90, 180),
+                        ),
+                        slideOnBoundaries: true,
+                        boundsOptions: const FitBoundsOptions(inside: true),
+                        onTap: (_, point) async =>
+                            _onMapPressed(context, geoJsonParser, point),
+                      ),
+                      children: [
+                        if (widget.showOsm)
+                          TileLayer(
+                            urlTemplate:
+                                'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                          ),
+                        PolygonLayer(
+                          polygons: geoJsonParser.polygons,
+                          // polygonCulling: true, // throws exceptions of hot reload
+                        ),
+                        // PolylineLayer(polylines: geoJson.polylines),
+                        // MarkerLayer(markers: geoJson.markers),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ),
           );
         }
@@ -132,39 +157,82 @@ class QuizScreenState extends State<QuizScreen> {
     );
   }
 
-  Future<void> _openCountryList() async {
+  Future<String?> _openCountryList() async {
     final service = await GetIt.I.getAsync<GeoJsonService>();
     final countries = service.features
         .map((e) => e['properties']['name'] as String)
+        .whereNot((e) => _states[e]?.$1.isFinished() ?? false)
         .sorted()
         .toList(growable: false);
-    _selection = await Routes.countryList.push(
+    return await Routes.countryList.push(
       Navigator.of(context),
       countries,
     ) as String?;
   }
 
-  Future<void> _onMapPressed(GeoJsonParser parser, LatLng latLng) async {
+  Future<void> _onMapPressed(
+    BuildContext context,
+    GeoJsonParser parser,
+    LatLng latLng,
+  ) async {
+    // find pressed country
     final point = Point(x: latLng.latitude, y: latLng.longitude);
-    final geoJsonService = await GetIt.I.getAsync<GeoJsonService>();
-    final jsonCountries = geoJsonService.features;
-
-    Map? jsonCountry;
-    for (var i = 0; i < parser.polygons.length; i++) {
-      final points = parser.polygons[i].points
+    final polygon = parser.polygons.firstWhereOrNull((polygon) {
+      final points = polygon.points
           .map((e) => Point(x: e.latitude, y: e.longitude))
           .toList(growable: false);
-
-      if (Poly.isPointInPolygon(point, points)) {
-        print('Country found');
-        jsonCountry = jsonCountries[i];
-        break;
-      }
-      if (jsonCountry == null) {
-        debugPrint('No country pressed');
-        return;
-      }
-      debugPrint(jsonCountry['properties']['name']);
+      return Poly.isPointInPolygon(point, points);
+    }) as CountryPolygon?;
+    if (polygon == null) {
+      debugPrint('No country pressed');
+      return;
     }
+    final clickedCountry = polygon.properties['name'].toString();
+    debugPrint(clickedCountry);
+
+    // abort if guessed too much
+    final attempts = _states[clickedCountry]?.$2 ?? 0;
+    if (attempts >= _prefService.maxTries) return;
+
+    // get guess if selection is null
+    if (_selection == null) {
+      final selection = await _openCountryList();
+      _selection = selection;
+    }
+
+    // check and show the result
+    final isCorrect = _selection == clickedCountry;
+    _addAttempt(clickedCountry, isCorrect);
+    setState(() => _selection = null);
+    final sms = ScaffoldMessenger.of(context);
+    sms.clearSnackBars();
+    sms.showSnackBar(
+      SnackBar(
+        content: Text(isCorrect ? 'Richtig!' : 'Leider falsch...'),
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: isCorrect ? Colors.lightGreen : Colors.redAccent,
+      ),
+    );
+  }
+
+  Future<void> _onCountryListButtonClicked() async {
+    final selection = await _openCountryList();
+    setState(() => _selection = selection);
+  }
+
+  void _addAttempt(String country, bool isCorrect) {
+    final state = _states[country];
+    final previousAttempts = state?.$2 ?? 0;
+    final currentAttempts = previousAttempts + 1;
+    if (isCorrect) {
+      _states[country] = (CountryState.correct, currentAttempts);
+    } else if (currentAttempts >= _prefService.maxTries) {
+      _states[country] = (CountryState.wrong, currentAttempts);
+    } else {
+      _states[country] = (CountryState.tried, currentAttempts);
+    }
+    setState(() {
+      _futureGeoJson = _loadGeoJson();
+    });
   }
 }
