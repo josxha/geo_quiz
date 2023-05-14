@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:geo_quiz/shared/services/pref_service.dart';
+import 'package:get_it/get_it.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -8,7 +10,7 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  bool _testVal = false;
+  final _prefService = GetIt.I<PrefService>();
 
   @override
   Widget build(BuildContext context) {
@@ -17,10 +19,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
       body: ListView(
         children: [
           SwitchListTile(
-            title: const Text('test'),
-            value: _testVal,
+            title: const Text('Zeit anzeigen'),
+            value: _prefService.showTime,
             onChanged: (value) => setState(() {
-              _testVal = value;
+              _prefService.showTime = value;
             }),
           ),
         ],

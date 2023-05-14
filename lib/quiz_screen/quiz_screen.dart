@@ -1,7 +1,10 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_geojson/flutter_map_geojson.dart';
+import 'package:geo_quiz/shared/routes.dart';
 import 'package:geo_quiz/shared/services/geojson_service.dart';
+import 'package:geo_quiz/shared/services/pref_service.dart';
 import 'package:get_it/get_it.dart';
 import 'package:latlong2/latlong.dart';
 
@@ -18,7 +21,11 @@ class QuizScreen extends StatefulWidget {
 }
 
 class QuizScreenState extends State<QuizScreen> {
+  final _prefService = GetIt.I<PrefService>();
   final _controller = MapController();
+  late final DateTime _startTime;
+
+  String? _selection;
 
   //late final Future<GeoJsonParser> _futureGeoJsonParser;
 
@@ -31,37 +38,53 @@ class QuizScreenState extends State<QuizScreen> {
           borderStrokeWidth: 0.5,
           borderColor: Colors.black,
           isFilled: true,
+          //label: properties['name'],
         );
       },
     );
-    final service = await GetIt.I.getAsync<GeoJsonService>();
-    parser.parseGeoJson(service.json);
+    final geoJsonService = await GetIt.I.getAsync<GeoJsonService>();
+    parser.parseGeoJson(geoJsonService.json);
     return parser;
   }
 
   @override
   void initState() {
     //_futureGeoJsonParser = _loadGeoJson();
+    _startTime = DateTime.now();
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Geo Quiz'),
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        label: const Text('Landesnamen'),
-        icon: const Icon(Icons.flag),
-        onPressed: () {},
-      ),
-      body: FutureBuilder<GeoJsonParser>(
-        future: _loadGeoJson(),
-        builder: (context, snapshot) {
-          if (snapshot.data != null) {
-            final geoJson = snapshot.data!;
-            return ColoredBox(
+    return FutureBuilder<GeoJsonParser>(
+      future: _loadGeoJson(),
+      builder: (context, snapshot) {
+        if (snapshot.data != null) {
+          final geoJson = snapshot.data!;
+          return Scaffold(
+            appBar: AppBar(
+              title: Wrap(
+                children: [
+                  if (_prefService.showTime) ...[
+                    const Icon(Icons.access_alarm),
+                    const SizedBox(width: 8),
+                    StreamBuilder(
+                      stream: Stream.periodic(const Duration(seconds: 1)),
+                      builder: (context, snapshot) {
+                        final duration = DateTime.now().difference(_startTime);
+                        return Text('${duration.inSeconds}s');
+                      },
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            floatingActionButton: FloatingActionButton.extended(
+              label: const Text('Ländernamen'),
+              icon: const Icon(Icons.flag),
+              onPressed: _openCountryList,
+            ),
+            body: ColoredBox(
               color: const Color.fromRGBO(170, 211, 223, 1),
               child: FlutterMap(
                 mapController: _controller,
@@ -92,16 +115,29 @@ class QuizScreenState extends State<QuizScreen> {
                   // MarkerLayer(markers: geoJson.markers),
                 ],
               ),
-            );
-          }
-          if (snapshot.error != null) {
-            debugPrint(snapshot.error.toString());
-            debugPrintStack(stackTrace: snapshot.stackTrace);
-            return Center(child: Text(snapshot.error!.toString()));
-          }
-          return const Center(child: CircularProgressIndicator());
-        },
-      ),
+            ),
+          );
+        }
+        if (snapshot.error != null) {
+          debugPrint(snapshot.error.toString());
+          debugPrintStack(stackTrace: snapshot.stackTrace);
+          return Center(child: Text(snapshot.error!.toString()));
+        }
+        return const Center(child: CircularProgressIndicator());
+      },
     );
+  }
+
+  Future<void> _openCountryList() async {
+    final service = await GetIt.I.getAsync<GeoJsonService>();
+    final jsonList = service.json['features'] as List<dynamic>;
+    final countries = jsonList
+        .map((e) => e['properties']['name'] as String)
+        .sorted()
+        .toList(growable: false);
+    _selection = await Routes.countryList.push(
+      Navigator.of(context),
+      countries,
+    ) as String?;
   }
 }
