@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:geo_quiz/routes.dart';
-import 'package:geo_quiz/theme.dart';
+import 'package:geo_quiz/shared/locator.dart';
+import 'package:geo_quiz/shared/routes.dart';
+import 'package:geo_quiz/shared/theme.dart';
 
 Future<void> main() async {
+  await setupLocator();
   runApp(const MyApp());
 }
 

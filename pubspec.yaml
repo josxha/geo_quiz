@@ -14,6 +14,7 @@ dependencies:
   latlong2: ^0.8.1
   flutter_map_tappable_polyline: ^4.0.0+1
   collection: ^1.17.1
+  get_it: ^7.6.0
 
 dev_dependencies:
   total_lints: ^2.19.0 # very strict set of lints
@@ -26,3 +27,4 @@ flutter:
   uses-material-design: true
   assets:
     - assets/countries.json
+    - assets/background.jpg

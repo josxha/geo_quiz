@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_geojson/flutter_map_geojson.dart';
+import 'package:geo_quiz/shared/services/geojson_service.dart';
+import 'package:get_it/get_it.dart';
 import 'package:latlong2/latlong.dart';
 
 class QuizScreen extends StatefulWidget {
@@ -22,7 +23,6 @@ class QuizScreenState extends State<QuizScreen> {
   //late final Future<GeoJsonParser> _futureGeoJsonParser;
 
   Future<GeoJsonParser> _loadGeoJson() async {
-    final geoJson = await rootBundle.loadString('assets/countries.json');
     final parser = GeoJsonParser(
       polygonCreationCallback: (points, holePointsList, properties) {
         return Polygon(
@@ -34,7 +34,8 @@ class QuizScreenState extends State<QuizScreen> {
         );
       },
     );
-    parser.parseGeoJsonAsString(geoJson);
+    final service = await GetIt.I.getAsync<GeoJsonService>();
+    parser.parseGeoJson(service.json);
     return parser;
   }
 
@@ -50,6 +51,11 @@ class QuizScreenState extends State<QuizScreen> {
       appBar: AppBar(
         title: const Text('Geo Quiz'),
       ),
+      floatingActionButton: FloatingActionButton.extended(
+        label: const Text('Landesnamen'),
+        icon: const Icon(Icons.flag),
+        onPressed: () {},
+      ),
       body: FutureBuilder<GeoJsonParser>(
         future: _loadGeoJson(),
         builder: (context, snapshot) {
@@ -60,14 +66,13 @@ class QuizScreenState extends State<QuizScreen> {
               child: FlutterMap(
                 mapController: _controller,
                 options: MapOptions(
-                  //center: LatLng(0, 0),
-                  zoom: 5,
+                  zoom: 2.5,
                   maxZoom: 6,
                   minZoom: 1,
                   interactiveFlags:
                       InteractiveFlag.all & ~InteractiveFlag.rotate,
                   maxBounds: LatLngBounds(
-                    LatLng(-90, -180),
+                    LatLng(-60, -180),
                     LatLng(90, 180),
                   ),
                   slideOnBoundaries: true,
