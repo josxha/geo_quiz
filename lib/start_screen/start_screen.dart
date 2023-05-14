@@ -45,7 +45,7 @@ class StartScreen extends StatelessWidget {
                               Icon(Icons.play_circle),
                               Spacer(),
                               Text(
-                                'Spiel starten',
+                                'Start game',
                                 style: TextStyle(fontSize: 20),
                               ),
                             ],
@@ -62,7 +62,7 @@ class StartScreen extends StatelessWidget {
                               Icon(Icons.settings),
                               Spacer(),
                               Text(
-                                'Einstellungen',
+                                'Settings',
                                 style: TextStyle(fontSize: 20),
                               ),
                             ],

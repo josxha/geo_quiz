@@ -15,14 +15,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Einstellungen')),
+      appBar: AppBar(title: const Text('Settings')),
       body: ListView(
         children: [
           SwitchListTile(
-            title: const Text('Zeit anzeigen'),
+            title: const Text('Show time'),
             value: _prefService.showTime,
             onChanged: (value) => setState(() {
               _prefService.showTime = value;
+            }),
+          ),
+          SwitchListTile(
+            title: const Text('Label countries afterwards'),
+            value: _prefService.labelCountriesAfterGuessed,
+            onChanged: (value) => setState(() {
+              _prefService.labelCountriesAfterGuessed = value;
             }),
           ),
         ],

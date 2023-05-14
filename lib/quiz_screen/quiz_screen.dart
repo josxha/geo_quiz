@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_geojson/flutter_map_geojson.dart';
 import 'package:geo_quiz/quiz_screen/country_polygon.dart';
+import 'package:geo_quiz/quiz_screen/result_dialog.dart';
 import 'package:geo_quiz/shared/routes.dart';
 import 'package:geo_quiz/shared/services/geojson_service.dart';
 import 'package:geo_quiz/shared/services/pref_service.dart';
@@ -202,13 +203,13 @@ class QuizScreenState extends State<QuizScreen> {
 
     // check and show the result
     final isCorrect = _selection == clickedCountry;
-    _addAttempt(clickedCountry, isCorrect);
+    _addAttempt(parser, clickedCountry, isCorrect);
     setState(() => _selection = null);
     final sms = ScaffoldMessenger.of(context);
     sms.clearSnackBars();
     sms.showSnackBar(
       SnackBar(
-        content: Text(isCorrect ? 'Richtig!' : 'Leider falsch...'),
+        content: Text(isCorrect ? 'Correct!' : 'Unfortunately wrong...'),
         behavior: SnackBarBehavior.floating,
         backgroundColor: isCorrect ? Colors.lightGreen : Colors.redAccent,
       ),
@@ -220,7 +221,7 @@ class QuizScreenState extends State<QuizScreen> {
     setState(() => _selection = selection);
   }
 
-  void _addAttempt(String country, bool isCorrect) {
+  void _addAttempt(GeoJsonParser parser, String country, bool isCorrect) {
     final state = _states[country];
     final previousAttempts = state?.$2 ?? 0;
     final currentAttempts = previousAttempts + 1;
@@ -234,5 +235,18 @@ class QuizScreenState extends State<QuizScreen> {
     setState(() {
       _futureGeoJson = _loadGeoJson();
     });
+
+    // end dialog
+    if (_states.length == parser.polygons.length) {
+      showDialog(
+        context: context,
+        builder: (context) => EndDialog(
+          correct:
+              _states.values.where((e) => e.$1 == CountryState.correct).length,
+          wrong: _states.values.where((e) => e.$1 == CountryState.wrong).length,
+          time: DateTime.now().difference(_startTime),
+        ),
+      );
+    }
   }
 }

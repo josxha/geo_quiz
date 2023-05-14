@@ -4,7 +4,10 @@ A Geography Quiz! How many countries can you name on the map?
 
 ## Additional Notes
 
-### How to generate a new [world-administrative-boundaries.json](assets/world-administrative-boundaries.json) file?
+### Where to get a GeoJson file?
 
-1. Download from https://public.opendatasoft.com/explore/dataset/world-administrative-boundaries/export/
-2. (optional) Simplify with https://mapshaper.org/ and export as GeoJSON
+- https://public.opendatasoft.com/explore/dataset/world-administrative-boundaries/export/
+- https://datahub.io/core/geo-countries
+- https://github.com/datasets/geo-countries/tree/master
+
+Can get simplified with https://mapshaper.org/.
