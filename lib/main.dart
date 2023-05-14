@@ -19,8 +19,7 @@ class _MyAppState extends State<MyApp> {
   late final Future<GeoJsonParser> _futureGeoJsonParser;
 
   Future<GeoJsonParser> _loadGeoJson() async {
-    final geoJson = await rootBundle
-        .loadString('assets/world-administrative-boundaries.json');
+    final geoJson = await rootBundle.loadString('assets/countries.json');
     final parser = GeoJsonParser();
     parser.parseGeoJsonAsString(geoJson);
     return parser;
@@ -42,34 +41,45 @@ class _MyAppState extends State<MyApp> {
       ),
       home: Scaffold(
         appBar: AppBar(
-          title: const Text("Geo Quiz"),
+          title: const Text('Geo Quiz'),
         ),
         body: FutureBuilder<GeoJsonParser>(
-            future: _loadGeoJson(),
-            builder: (context, snapshot) {
-              if (snapshot.data != null) {
-                final geoJson = snapshot.data!;
-                return FlutterMap(
-                  mapController: _controller,
-                  options: MapOptions(zoom: 3),
-                  children: [
-                    TileLayer(
+          future: _futureGeoJsonParser,
+          builder: (context, snapshot) {
+            if (snapshot.data != null) {
+              final geoJson = snapshot.data!;
+              return FlutterMap(
+                mapController: _controller,
+                options: MapOptions(
+                  //center: LatLng(0, 0),
+                  zoom: 2,
+                  maxZoom: 10,
+                  minZoom: 1,
+                  interactiveFlags:
+                      InteractiveFlag.all & ~InteractiveFlag.rotate,
+                ),
+                children: [
+                  /*TileLayer(
                       urlTemplate:
                           "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
-                    ),
-                    PolygonLayer(polygons: geoJson.polygons),
-                    PolylineLayer(polylines: geoJson.polylines),
-                    MarkerLayer(markers: geoJson.markers),
-                  ],
-                );
-              }
-              if (snapshot.error != null) {
-                debugPrint(snapshot.error.toString());
-                debugPrintStack(stackTrace: snapshot.stackTrace);
-                return Center(child: Text(snapshot.error!.toString()));
-              }
-              return const Center(child: CircularProgressIndicator());
-            }),
+                    ),*/
+                  PolygonLayer(
+                    polygons: geoJson.polygons,
+                    polygonCulling: true,
+                  ),
+                  //PolylineLayer(polylines: geoJson.polylines),
+                  //MarkerLayer(markers: geoJson.markers),
+                ],
+              );
+            }
+            if (snapshot.error != null) {
+              debugPrint(snapshot.error.toString());
+              debugPrintStack(stackTrace: snapshot.stackTrace);
+              return Center(child: Text(snapshot.error!.toString()));
+            }
+            return const Center(child: CircularProgressIndicator());
+          },
+        ),
       ),
     );
   }

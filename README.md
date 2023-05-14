@@ -1,16 +1,10 @@
 # geo_quiz
 
-Geography quizzes
+A Geography Quiz! How many countries can you name on the map?
 
-## Getting Started
+## Additional Notes
 
-This project is a starting point for a Flutter application.
+### How to generate a new [world-administrative-boundaries.json](assets/world-administrative-boundaries.json) file?
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+1. Download from https://public.opendatasoft.com/explore/dataset/world-administrative-boundaries/export/
+2. (optional) Simplify with https://mapshaper.org/ and export as GeoJSON
