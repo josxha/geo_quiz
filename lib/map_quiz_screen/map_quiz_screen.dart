@@ -29,36 +29,15 @@ class MapQuizScreenState extends State<MapQuizScreen> {
   final _prefService = GetIt.I<PrefService>();
   final _controller = MapController();
   final _states = <String, (CountryState, int)>{};
-  late Future<GeoJsonParser> _futureGeoJson;
   final _stopwatch = Stopwatch();
   var _gamePaused = false;
 
   String? _countryNameSelection;
   String? _countryMapSelection;
 
-  Future<GeoJsonParser> _loadGeoJson() async {
-    final parser = GeoJsonParser(
-      polygonCreationCallback: (points, holePointsList, properties) {
-        return CountryPolygon(
-          points: points,
-          holePointsList: holePointsList,
-          properties: properties,
-          state: _states[properties['name']]?.$1 ?? CountryState.unset,
-          showLabel: _prefService.labelCountriesAfterFinished
-              ? ShowLabel.ifFinished
-              : ShowLabel.never,
-        );
-      },
-    );
-    final geoJsonService = await GetIt.I.getAsync<GeoJsonService>();
-    parser.parseGeoJson(geoJsonService.json);
-    return parser;
-  }
-
   @override
   void initState() {
     _stopwatch.start();
-    _futureGeoJson = _loadGeoJson();
     super.initState();
   }
 
@@ -67,11 +46,31 @@ class MapQuizScreenState extends State<MapQuizScreen> {
     final size = MediaQuery.of(context).size;
     final bigScreen = size.width > 900;
 
-    return FutureBuilder<GeoJsonParser>(
-      future: _futureGeoJson,
+    return FutureBuilder<GeoJsonService>(
+      future: GetIt.I.getAsync<GeoJsonService>(),
       builder: (context, snapshot) {
         if (snapshot.data != null) {
-          final geoJsonParser = snapshot.data!;
+          final geoJsonService = snapshot.data!;
+
+          final parser = GeoJsonParser(
+            polygonCreationCallback: (points, holePointsList, properties) {
+              var state = _states[properties['name']]?.$1 ?? CountryState.unset;
+              if (properties['name'] == _countryMapSelection) {
+                state = CountryState.selected;
+              }
+              return CountryPolygon(
+                points: points,
+                holePointsList: holePointsList,
+                properties: properties,
+                state: state,
+                showLabel: _prefService.labelCountriesAfterFinished
+                    ? ShowLabel.ifFinished
+                    : ShowLabel.never,
+              );
+            },
+          );
+          parser.parseGeoJson(geoJsonService.json);
+
           return WillPopScope(
             onWillPop: _onWillPop,
             child: Scaffold(
@@ -106,7 +105,7 @@ class MapQuizScreenState extends State<MapQuizScreen> {
                         const SizedBox(width: 8),
                         Text(
                           '${_states.values.where((e) => e.$1.isFinished()).length}/'
-                          '${geoJsonParser.polygons.length}',
+                          '${parser.polygons.length}',
                         ),
                       ],
                     )
@@ -157,7 +156,7 @@ class MapQuizScreenState extends State<MapQuizScreen> {
                                     const FitBoundsOptions(inside: true),
                                 onTap: (_, point) async => _onMapPressed(
                                   context,
-                                  geoJsonParser,
+                                  parser,
                                   point,
                                   bigScreen,
                                 ),
@@ -169,7 +168,7 @@ class MapQuizScreenState extends State<MapQuizScreen> {
                                         'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                                   ),
                                 PolygonLayer(
-                                  polygons: geoJsonParser.polygons,
+                                  polygons: parser.polygons,
                                   // polygonCulling: true, // throws exceptions of hot reload
                                 ),
                                 // PolylineLayer(polylines: geoJson.polylines),
@@ -203,7 +202,7 @@ class MapQuizScreenState extends State<MapQuizScreen> {
                                   });
                                   return;
                                 }
-                                _addAttempt(geoJsonParser);
+                                _addAttempt(parser);
                               },
                             );
                           }
@@ -257,7 +256,9 @@ class MapQuizScreenState extends State<MapQuizScreen> {
       debugPrint('No country pressed');
       return;
     }
-    _countryMapSelection = polygon.properties['name'].toString();
+    setState(() {
+      _countryMapSelection = polygon.properties['name'].toString();
+    });
     debugPrint(_countryMapSelection);
 
     // abort if guessed too much
@@ -317,8 +318,6 @@ class MapQuizScreenState extends State<MapQuizScreen> {
       } else {
         _states[_countryMapSelection!] = (CountryState.tried, currentAttempts);
       }
-
-      _futureGeoJson = _loadGeoJson();
     });
 
     // clear selection
