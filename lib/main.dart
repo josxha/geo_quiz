@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:geo_quiz/shared/locator.dart';
 import 'package:geo_quiz/shared/routes.dart';
 import 'package:geo_quiz/shared/theme.dart';
 
 Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   await setupLocator();
   runApp(const MyApp());
 }
@@ -33,6 +35,8 @@ class _MyAppState extends State<MyApp> {
       theme: appTheme,
       onGenerateRoute: (settings) => Routes.generateRoute(settings),
       initialRoute: Routes.start.name,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
     );
   }
 }

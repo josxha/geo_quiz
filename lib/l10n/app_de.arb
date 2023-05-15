@@ -1,0 +1,17 @@
+{
+  "startGame": "Spiel starten",
+  "settings": "Optionen",
+  "aboutTheApp": "Über die App",
+  "usedLicenses": "Verwendete Lizenzen",
+  "countryNames": "Ländernamen",
+  "searchHint": "Suchen ...",
+  "selectedCountry": "Ausgewählt: {country}",
+  "correctAnswer": "Richtig!",
+  "wrongAnswer": "Ups, leider falsch...",
+  "gameFinished": "Spiel beendet!",
+  "showTime": "Zeit anzeigen",
+  "labelCountries": "Länder beschriften",
+  "correctGuesses": "Richtig geraten",
+  "wrongGuesses": "Falsch geraten",
+  "timeNeeded": "Benötigte Zeit"
+}

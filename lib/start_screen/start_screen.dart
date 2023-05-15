@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:geo_quiz/shared/routes.dart';
 
 class StartScreen extends StatelessWidget {
@@ -38,15 +39,15 @@ class StartScreen extends StatelessWidget {
                     children: [
                       ElevatedButton(
                         onPressed: () => Routes.quiz.push(),
-                        child: const Padding(
-                          padding: EdgeInsets.all(16),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
                           child: Row(
                             children: [
-                              Icon(Icons.play_circle),
-                              SizedBox(width: 16),
+                              const Icon(Icons.play_circle),
+                              const SizedBox(width: 16),
                               Text(
-                                'Start game',
-                                style: TextStyle(fontSize: 20),
+                                AppLocalizations.of(context)!.startGame,
+                                style: const TextStyle(fontSize: 20),
                               ),
                             ],
                           ),
@@ -55,15 +56,15 @@ class StartScreen extends StatelessWidget {
                       const SizedBox(height: 16),
                       ElevatedButton(
                         onPressed: () => Routes.settings.push(),
-                        child: const Padding(
-                          padding: EdgeInsets.all(16),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
                           child: Row(
                             children: [
-                              Icon(Icons.settings),
-                              SizedBox(width: 16),
+                              const Icon(Icons.settings),
+                              const SizedBox(width: 16),
                               Text(
-                                'Settings',
-                                style: TextStyle(fontSize: 20),
+                                AppLocalizations.of(context)!.settings,
+                                style: const TextStyle(fontSize: 20),
                               ),
                             ],
                           ),
@@ -72,15 +73,15 @@ class StartScreen extends StatelessWidget {
                       const SizedBox(height: 16),
                       ElevatedButton(
                         onPressed: () => Routes.about.push(),
-                        child: const Padding(
-                          padding: EdgeInsets.all(16),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
                           child: Row(
                             children: [
-                              Icon(Icons.help),
-                              SizedBox(width: 16),
+                              const Icon(Icons.help),
+                              const SizedBox(width: 16),
                               Text(
-                                'About',
-                                style: TextStyle(fontSize: 20),
+                                AppLocalizations.of(context)!.aboutTheApp,
+                                style: const TextStyle(fontSize: 20),
                               ),
                             ],
                           ),

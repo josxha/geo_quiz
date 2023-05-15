@@ -1,6 +1,5 @@
-import 'package:flutter/material.dart';
+import 'package:geo_quiz/shared/common.dart';
 import 'package:geo_quiz/shared/services/app_info_service.dart';
-import 'package:get_it/get_it.dart';
 
 class AboutScreen extends StatelessWidget {
   const AboutScreen({super.key});
@@ -10,14 +9,14 @@ class AboutScreen extends StatelessWidget {
     final appInfo = GetIt.I<AppInfoService>();
 
     return Scaffold(
-      appBar: AppBar(title: const Text('About')),
+      appBar: AppBar(title: Text(AppLocalizations.of(context)!.aboutTheApp)),
       body: ListView(
         children: [
           ListTile(
-            title: const Text('Licenses'),
+            title: Text(AppLocalizations.of(context)!.usedLicenses),
             onTap: () => showLicensePage(
               context: context,
-              applicationName: 'Geo Quiz',
+              applicationName: 'GeoQuiz',
               applicationVersion: appInfo.appVersion,
             ),
             trailing: const Icon(Icons.keyboard_arrow_right),

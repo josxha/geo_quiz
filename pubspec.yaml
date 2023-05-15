@@ -9,6 +9,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
   flutter_map: ^3.0.0
   flutter_map_geojson: ^1.0.1
   latlong2: ^0.8.1
@@ -16,6 +18,7 @@ dependencies:
   collection: ^1.17.1
   get_it: ^7.6.0
   package_info_plus: ^4.0.0
+  intl: any
 
 dev_dependencies:
   total_lints: ^2.19.0 # very strict set of lints
@@ -26,6 +29,7 @@ dependency_overrides:
 
 flutter:
   uses-material-design: true
+  generate: true # for localization
   assets:
     - assets/countries.json
     - assets/background.jpg

@@ -1,6 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:geo_quiz/shared/services/pref_service.dart';
-import 'package:get_it/get_it.dart';
+import 'package:geo_quiz/shared/common.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -15,18 +13,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Settings')),
+      appBar: AppBar(title: Text(AppLocalizations.of(context)!.settings)),
       body: ListView(
         children: [
           SwitchListTile(
-            title: const Text('Show time'),
+            title: Text(AppLocalizations.of(context)!.showTime),
             value: _prefService.showTime,
             onChanged: (value) => setState(() {
               _prefService.showTime = value;
             }),
           ),
           SwitchListTile(
-            title: const Text('Label countries afterwards'),
+            title: Text(AppLocalizations.of(context)!.labelCountries),
             value: _prefService.labelCountriesAfterGuessed,
             onChanged: (value) => setState(() {
               _prefService.labelCountriesAfterGuessed = value;

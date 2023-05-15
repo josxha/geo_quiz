@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:geo_quiz/shared/common.dart';
 
 class CountryList extends StatefulWidget {
   final List<String> countries;
@@ -22,7 +22,7 @@ class _CountryListState extends State<CountryList> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Ländernamen')),
+      appBar: AppBar(title: Text(AppLocalizations.of(context)!.countryNames)),
       body: Column(
         children: [
           Padding(
@@ -36,7 +36,7 @@ class _CountryListState extends State<CountryList> {
                   icon: const Icon(Icons.cancel),
                 ),
               ],
-              hintText: 'Search ...',
+              hintText: AppLocalizations.of(context)!.searchHint,
               onChanged: _search,
             ),
           ),

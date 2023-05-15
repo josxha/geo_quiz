@@ -1,0 +1,25 @@
+{
+  "startGame": "Start game",
+  "settings": "Settings",
+  "aboutTheApp": "About the app",
+  "usedLicenses": "Used licenses",
+  "countryNames": "Country names",
+  "searchHint": "Search ...",
+  "selectedCountry": "Selected: {country}",
+  "@hello": {
+    "placeholders": {
+      "country": {
+        "type": "String",
+        "example": "Germany"
+      }
+    }
+  },
+  "correctAnswer": "Correct!",
+  "wrongAnswer": "Whoops, wrong answer!",
+  "gameFinished": "Game finished!",
+  "showTime": "Show time",
+  "labelCountries": "Label countries",
+  "correctGuesses": "Correct guesses",
+  "wrongGuesses": "Wrong guesses",
+  "timeNeeded": "Time needed"
+}

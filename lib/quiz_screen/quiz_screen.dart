@@ -1,13 +1,10 @@
 import 'package:collection/collection.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_geojson/flutter_map_geojson.dart';
 import 'package:geo_quiz/quiz_screen/country_polygon.dart';
-import 'package:geo_quiz/quiz_screen/result_dialog.dart';
-import 'package:geo_quiz/shared/routes.dart';
+import 'package:geo_quiz/quiz_screen/end_dialog.dart';
+import 'package:geo_quiz/shared/common.dart';
 import 'package:geo_quiz/shared/services/geojson_service.dart';
-import 'package:geo_quiz/shared/services/pref_service.dart';
-import 'package:get_it/get_it.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:point_in_polygon/point_in_polygon.dart';
 
@@ -104,7 +101,7 @@ class QuizScreenState extends State<QuizScreen> {
               ),
             ),
             floatingActionButton: FloatingActionButton.extended(
-              label: const Text('Country list'),
+              label: Text(AppLocalizations.of(context)!.countryNames),
               icon: const Icon(Icons.flag),
               onPressed: _onCountryListButtonClicked,
             ),
@@ -116,7 +113,8 @@ class QuizScreenState extends State<QuizScreen> {
                     child: Padding(
                       padding: const EdgeInsets.all(8),
                       child: Text(
-                        'Ausgewählt: $_selection',
+                        AppLocalizations.of(context)!
+                            .selectedCountry(_selection!),
                         style: const TextStyle(fontSize: 20),
                       ),
                     ),
@@ -225,7 +223,11 @@ class QuizScreenState extends State<QuizScreen> {
     sms.clearSnackBars();
     sms.showSnackBar(
       SnackBar(
-        content: Text(isCorrect ? 'Correct!' : 'Unfortunately wrong...'),
+        content: Text(
+          isCorrect
+              ? AppLocalizations.of(context)!.correctAnswer
+              : AppLocalizations.of(context)!.wrongAnswer,
+        ),
         behavior: SnackBarBehavior.floating,
         backgroundColor: isCorrect ? Colors.lightGreen : Colors.redAccent,
       ),
@@ -253,7 +255,7 @@ class QuizScreenState extends State<QuizScreen> {
     });
 
     // end dialog
-    if (_states.length == parser.polygons.length) {
+    if (_states.length != parser.polygons.length) {
       showDialog(
         context: context,
         builder: (context) => EndDialog(
