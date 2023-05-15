@@ -13,5 +13,10 @@
   "labelCountries": "Länder beschriften",
   "correctGuesses": "Richtig geraten",
   "wrongGuesses": "Falsch geraten",
-  "timeNeeded": "Benötigte Zeit"
+  "timeNeeded": "Benötigte Zeit",
+  "ok": "OK",
+  "gamePaused": "Spiel pausiert",
+  "continuePlaying": "Weiter spielen",
+  "endGame": "Spiel beenden",
+  "gamePausedText": "Das Spiel wurde pausiert."
 }

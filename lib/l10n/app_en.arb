@@ -21,5 +21,10 @@
   "labelCountries": "Label countries",
   "correctGuesses": "Correct guesses",
   "wrongGuesses": "Wrong guesses",
-  "timeNeeded": "Time needed"
+  "timeNeeded": "Time needed",
+  "ok": "OK",
+  "gamePaused": "Game paused",
+  "continuePlaying": "Continue playing",
+  "endGame": "End game",
+  "gamePausedText": "The game was paused."
 }

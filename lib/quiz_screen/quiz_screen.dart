@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:collection/collection.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_geojson/flutter_map_geojson.dart';
 import 'package:geo_quiz/quiz_screen/country_polygon.dart';
 import 'package:geo_quiz/quiz_screen/end_dialog.dart';
+import 'package:geo_quiz/quiz_screen/pause_dialog.dart';
 import 'package:geo_quiz/shared/common.dart';
 import 'package:geo_quiz/shared/services/geojson_service.dart';
 import 'package:latlong2/latlong.dart';
@@ -25,7 +28,8 @@ class QuizScreenState extends State<QuizScreen> {
   final _controller = MapController();
   final _states = <String, (CountryState, int)>{};
   late Future<GeoJsonParser> _futureGeoJson;
-  late final DateTime _startTime;
+  final _stopwatch = Stopwatch();
+  var _gamePaused = false;
 
   String? _selection;
 
@@ -48,7 +52,7 @@ class QuizScreenState extends State<QuizScreen> {
 
   @override
   void initState() {
-    _startTime = DateTime.now();
+    _stopwatch.start();
     _futureGeoJson = _loadGeoJson();
     super.initState();
   }
@@ -60,102 +64,104 @@ class QuizScreenState extends State<QuizScreen> {
       builder: (context, snapshot) {
         if (snapshot.data != null) {
           final geoJsonParser = snapshot.data!;
-          return Scaffold(
-            appBar: AppBar(
-              title: Wrap(
-                spacing: 16,
-                runSpacing: 16,
-                children: [
-                  if (_prefService.showTime)
+          return WillPopScope(
+            onWillPop: _onWillPop,
+            child: Scaffold(
+              appBar: AppBar(
+                title: Wrap(
+                  spacing: 16,
+                  runSpacing: 16,
+                  children: [
+                    if (_prefService.showTime)
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.access_alarm),
+                          const SizedBox(width: 8),
+                          StreamBuilder(
+                            stream: Stream.periodic(const Duration(seconds: 1)),
+                            builder: (context, snapshot) {
+                              final duration = _stopwatch.elapsed;
+                              final min = duration.inMinutes;
+                              final sec = (duration.inSeconds % 60)
+                                  .toString()
+                                  .padLeft(2, '0');
+                              return Text('$min:$sec');
+                            },
+                          ),
+                        ],
+                      ),
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(Icons.access_alarm),
+                        const Icon(Icons.stacked_bar_chart_outlined),
                         const SizedBox(width: 8),
-                        StreamBuilder(
-                          stream: Stream.periodic(const Duration(seconds: 1)),
-                          builder: (context, snapshot) {
-                            final duration =
-                                DateTime.now().difference(_startTime);
-                            final min = duration.inMinutes;
-                            final sec = (duration.inSeconds % 60)
-                                .toString()
-                                .padLeft(2, '0');
-                            return Text('$min:$sec');
-                          },
+                        Text(
+                          '${_states.values.where((e) => e.$1.isFinished()).length}/'
+                          '${geoJsonParser.polygons.length}',
                         ),
                       ],
-                    ),
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(Icons.stacked_bar_chart_outlined),
-                      const SizedBox(width: 8),
-                      Text(
-                        '${_states.values.where((e) => e.$1.isFinished()).length}/'
-                        '${geoJsonParser.polygons.length}',
+                    )
+                  ],
+                ),
+              ),
+              floatingActionButton: FloatingActionButton.extended(
+                label: Text(AppLocalizations.of(context)!.countryNames),
+                icon: const Icon(Icons.flag),
+                onPressed: _onCountryListButtonClicked,
+              ),
+              body: Column(
+                children: [
+                  if (_selection != null)
+                    ColoredBox(
+                      color: Colors.white,
+                      child: Padding(
+                        padding: const EdgeInsets.all(8),
+                        child: Text(
+                          AppLocalizations.of(context)!
+                              .selectedCountry(_selection!),
+                          style: const TextStyle(fontSize: 20),
+                        ),
                       ),
-                    ],
-                  )
+                    ),
+                  Expanded(
+                    child: ColoredBox(
+                      color: const Color.fromRGBO(170, 211, 223, 1),
+                      child: FlutterMap(
+                        mapController: _controller,
+                        options: MapOptions(
+                          zoom: 2.5,
+                          maxZoom: 6,
+                          minZoom: 1,
+                          interactiveFlags:
+                              InteractiveFlag.all & ~InteractiveFlag.rotate,
+                          maxBounds: LatLngBounds(
+                            LatLng(-60, -180),
+                            LatLng(90, 180),
+                          ),
+                          slideOnBoundaries: true,
+                          boundsOptions: const FitBoundsOptions(inside: true),
+                          onTap: (_, point) async =>
+                              _onMapPressed(context, geoJsonParser, point),
+                        ),
+                        children: [
+                          if (widget.showOsm)
+                            TileLayer(
+                              urlTemplate:
+                                  'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                            ),
+                          PolygonLayer(
+                            polygons: geoJsonParser.polygons,
+                            // polygonCulling: true, // throws exceptions of hot reload
+                          ),
+                          // PolylineLayer(polylines: geoJson.polylines),
+                          // MarkerLayer(markers: geoJson.markers),
+                        ],
+                      ),
+                    ),
+                  ),
                 ],
               ),
-            ),
-            floatingActionButton: FloatingActionButton.extended(
-              label: Text(AppLocalizations.of(context)!.countryNames),
-              icon: const Icon(Icons.flag),
-              onPressed: _onCountryListButtonClicked,
-            ),
-            body: Column(
-              children: [
-                if (_selection != null)
-                  ColoredBox(
-                    color: Colors.white,
-                    child: Padding(
-                      padding: const EdgeInsets.all(8),
-                      child: Text(
-                        AppLocalizations.of(context)!
-                            .selectedCountry(_selection!),
-                        style: const TextStyle(fontSize: 20),
-                      ),
-                    ),
-                  ),
-                Expanded(
-                  child: ColoredBox(
-                    color: const Color.fromRGBO(170, 211, 223, 1),
-                    child: FlutterMap(
-                      mapController: _controller,
-                      options: MapOptions(
-                        zoom: 2.5,
-                        maxZoom: 6,
-                        minZoom: 1,
-                        interactiveFlags:
-                            InteractiveFlag.all & ~InteractiveFlag.rotate,
-                        maxBounds: LatLngBounds(
-                          LatLng(-60, -180),
-                          LatLng(90, 180),
-                        ),
-                        slideOnBoundaries: true,
-                        boundsOptions: const FitBoundsOptions(inside: true),
-                        onTap: (_, point) async =>
-                            _onMapPressed(context, geoJsonParser, point),
-                      ),
-                      children: [
-                        if (widget.showOsm)
-                          TileLayer(
-                            urlTemplate:
-                                'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                          ),
-                        PolygonLayer(
-                          polygons: geoJsonParser.polygons,
-                          // polygonCulling: true, // throws exceptions of hot reload
-                        ),
-                        // PolylineLayer(polylines: geoJson.polylines),
-                        // MarkerLayer(markers: geoJson.markers),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
             ),
           );
         }
@@ -262,9 +268,29 @@ class QuizScreenState extends State<QuizScreen> {
           correct:
               _states.values.where((e) => e.$1 == CountryState.correct).length,
           wrong: _states.values.where((e) => e.$1 == CountryState.wrong).length,
-          time: DateTime.now().difference(_startTime),
+          time: _stopwatch.elapsed,
         ),
       );
     }
+  }
+
+  Future<bool> _onWillPop() async {
+    if (_gamePaused) return true;
+
+    _gamePaused = true;
+    _stopwatch.stop();
+
+    final continueGame = await showDialog(
+          context: context,
+          builder: (context) => const PauseDialog(),
+        ) as bool? ??
+        true;
+    // debugPrint('continue game: $continueGame');
+    if (continueGame) {
+      _gamePaused = false;
+      _stopwatch.start();
+      return false;
+    }
+    return true;
   }
 }

@@ -45,7 +45,7 @@ class EndDialog extends StatelessWidget {
               return route.settings.name == Routes.start.name;
             });
           },
-          child: const Text('OK'),
+          child: Text(AppLocalizations.of(context)!.ok),
         )
       ],
     );
