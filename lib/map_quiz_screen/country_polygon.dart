@@ -14,7 +14,7 @@ class CountryPolygon extends Polygon {
     this.showLabel = ShowLabel.always,
   }) : super(
           color: state.toColor(),
-          borderStrokeWidth: state == CountryState.selected ? 2 : 0.5,
+          borderStrokeWidth: 0.5,
           borderColor: Colors.black,
           isFilled: true,
           label: switch (showLabel) {

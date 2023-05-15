@@ -3,17 +3,15 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:geo_quiz/country_list/country_list.dart';
 import 'package:geo_quiz/country_list/country_list_content.dart';
+import 'package:geo_quiz/game_screen/game_screen.dart';
 import 'package:geo_quiz/map_quiz_screen/country_polygon.dart';
 import 'package:geo_quiz/map_quiz_screen/end_dialog.dart';
 import 'package:geo_quiz/map_quiz_screen/map_widget.dart';
-import 'package:geo_quiz/map_quiz_screen/pause_dialog.dart';
 import 'package:geo_quiz/shared/common.dart';
 import 'package:geo_quiz/shared/services/geojson_service.dart';
 
 class MapQuizScreen extends StatefulWidget {
-  const MapQuizScreen({
-    super.key,
-  });
+  const MapQuizScreen({super.key});
 
   @override
   State<MapQuizScreen> createState() => MapQuizScreenState();
@@ -21,19 +19,13 @@ class MapQuizScreen extends StatefulWidget {
 
 class MapQuizScreenState extends State<MapQuizScreen> {
   final _prefService = GetIt.I<PrefService>();
+  final _mapKey = GlobalKey<MapWidgetState>();
+  final _stopwatch = Stopwatch();
 
   final _states = <String, (CountryState, int)>{};
-  final _stopwatch = Stopwatch();
-  var _gamePaused = false;
 
   String? _countryNameSelection;
   String? _countryMapSelection;
-
-  @override
-  void initState() {
-    _stopwatch.start();
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -45,118 +37,82 @@ class MapQuizScreenState extends State<MapQuizScreen> {
       builder: (context, snapshot) {
         if (snapshot.data != null) {
           final geoJsonService = snapshot.data!;
-          return WillPopScope(
-            onWillPop: _onWillPop,
-            child: Scaffold(
-              appBar: AppBar(
-                title: Wrap(
-                  spacing: 16,
-                  runSpacing: 16,
-                  children: [
-                    if (_prefService.showTime)
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const FaIcon(FontAwesomeIcons.clock),
-                          const SizedBox(width: 8),
-                          StreamBuilder(
-                            stream: Stream.periodic(const Duration(seconds: 1)),
-                            builder: (context, snapshot) {
-                              final duration = _stopwatch.elapsed;
-                              final min = duration.inMinutes;
-                              final sec = (duration.inSeconds % 60)
-                                  .toString()
-                                  .padLeft(2, '0');
-                              return Text('$min:$sec');
-                            },
+          return GameScreen(
+            stopwatch: _stopwatch,
+            progress:
+                '${_states.values.where((e) => e.$1.isFinished()).length}/'
+                '${geoJsonService.features.length}',
+            floatingActionButton: bigScreen
+                ? null
+                : FloatingActionButton.extended(
+                    label: Text(AppLocalizations.of(context)!.countryNames),
+                    icon: const FaIcon(FontAwesomeIcons.flag),
+                    onPressed: _onCountryListButtonClicked,
+                  ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    children: [
+                      if (!bigScreen && _countryNameSelection != null)
+                        ColoredBox(
+                          color: Colors.white,
+                          child: Padding(
+                            padding: const EdgeInsets.all(8),
+                            child: Text(
+                              AppLocalizations.of(context)!
+                                  .selectedCountry(_countryNameSelection!),
+                              style: const TextStyle(fontSize: 20),
+                            ),
                           ),
-                        ],
+                        ),
+                      Expanded(
+                        child: MapWidget(
+                          key: _mapKey,
+                          geoJsonService: geoJsonService,
+                          onMapSelected: (sel) async => _onMapSelected(
+                            sel,
+                            bigScreen,
+                            geoJsonService,
+                          ),
+                          states: _states,
+                        ),
                       ),
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const FaIcon(FontAwesomeIcons.chartLine),
-                        const SizedBox(width: 8),
-                        Text(
-                          '${_states.values.where((e) => e.$1.isFinished()).length}/'
-                          '${geoJsonService.features.length}',
-                        ),
-                      ],
-                    )
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-              floatingActionButton: bigScreen
-                  ? null
-                  : FloatingActionButton.extended(
-                      label: Text(AppLocalizations.of(context)!.countryNames),
-                      icon: const FaIcon(FontAwesomeIcons.flag),
-                      onPressed: _onCountryListButtonClicked,
-                    ),
-              body: Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      children: [
-                        if (!bigScreen && _countryNameSelection != null)
-                          ColoredBox(
-                            color: Colors.white,
-                            child: Padding(
-                              padding: const EdgeInsets.all(8),
-                              child: Text(
-                                AppLocalizations.of(context)!
-                                    .selectedCountry(_countryNameSelection!),
-                                style: const TextStyle(fontSize: 20),
-                              ),
-                            ),
-                          ),
-                        Expanded(
-                          child: MapWidget(
-                            geoJsonService: geoJsonService,
-                            onMapSelected: (sel) async => _onMapSelected(
-                              sel,
-                              bigScreen,
-                              geoJsonService,
-                            ),
-                            states: _states,
-                          ),
-                        ),
-                      ],
+                if (bigScreen)
+                  SizedBox(
+                    width: 300,
+                    child: FutureBuilder<GeoJsonService>(
+                      future: GetIt.I.getAsync<GeoJsonService>(),
+                      builder: (context, snapshot) {
+                        if (snapshot.data != null) {
+                          return CountryListContent(
+                            countries: snapshot.data!.features
+                                .map((e) => e['properties']['name'] as String)
+                                .whereNot(
+                                  (e) => _states[e]?.$1.isFinished() ?? false,
+                                )
+                                .sorted()
+                                .toList(growable: false),
+                            selection: _countryNameSelection,
+                            onSelected: (selection) {
+                              if (_countryMapSelection == null) {
+                                setState(() {
+                                  _countryNameSelection = selection;
+                                });
+                                return;
+                              }
+                              _addAttempt(geoJsonService);
+                            },
+                          );
+                        }
+                        return const CircularProgressIndicator();
+                      },
                     ),
                   ),
-                  if (bigScreen)
-                    SizedBox(
-                      width: 300,
-                      child: FutureBuilder<GeoJsonService>(
-                        future: GetIt.I.getAsync<GeoJsonService>(),
-                        builder: (context, snapshot) {
-                          if (snapshot.data != null) {
-                            return CountryListContent(
-                              countries: snapshot.data!.features
-                                  .map((e) => e['properties']['name'] as String)
-                                  .whereNot(
-                                    (e) => _states[e]?.$1.isFinished() ?? false,
-                                  )
-                                  .sorted()
-                                  .toList(growable: false),
-                              selection: _countryNameSelection,
-                              onSelected: (selection) {
-                                if (_countryMapSelection == null) {
-                                  setState(() {
-                                    _countryNameSelection = selection;
-                                  });
-                                  return;
-                                }
-                                _addAttempt(geoJsonService);
-                              },
-                            );
-                          }
-                          return const CircularProgressIndicator();
-                        },
-                      ),
-                    ),
-                ],
-              ),
+              ],
             ),
           );
         }
@@ -211,22 +167,20 @@ class MapQuizScreenState extends State<MapQuizScreen> {
     final state = _states[_countryMapSelection];
     final previousAttempts = state?.$2 ?? 0;
     final currentAttempts = previousAttempts + 1;
-    setState(() {
-      if (isCorrect) {
-        _states[_countryMapSelection!] =
-            (CountryState.correct, currentAttempts);
-      } else if (currentAttempts >= _prefService.maxTries) {
-        _states[_countryMapSelection!] = (CountryState.wrong, currentAttempts);
-      } else {
-        _states[_countryMapSelection!] = (CountryState.tried, currentAttempts);
-      }
-    });
+    if (isCorrect) {
+      _states[_countryMapSelection!] = (CountryState.correct, currentAttempts);
+    } else if (currentAttempts >= _prefService.maxTries) {
+      _states[_countryMapSelection!] = (CountryState.wrong, currentAttempts);
+    } else {
+      _states[_countryMapSelection!] = (CountryState.tried, currentAttempts);
+    }
 
     // clear selection
     setState(() {
       _countryNameSelection = null;
       _countryMapSelection = null;
     });
+    _mapKey.currentState!.reloadPolygons();
 
     // end dialog
     if (_states.length == geoJsonService.features.length) {
@@ -240,26 +194,6 @@ class MapQuizScreenState extends State<MapQuizScreen> {
         ),
       );
     }
-  }
-
-  Future<bool> _onWillPop() async {
-    if (_gamePaused) return true;
-
-    _gamePaused = true;
-    _stopwatch.stop();
-
-    final continueGame = await showDialog(
-          context: context,
-          builder: (context) => const PauseDialog(),
-        ) as bool? ??
-        true;
-    // debugPrint('continue game: $continueGame');
-    if (continueGame) {
-      _gamePaused = false;
-      _stopwatch.start();
-      return false;
-    }
-    return true;
   }
 
   Future<void> _onMapSelected(
@@ -281,6 +215,8 @@ class MapQuizScreenState extends State<MapQuizScreen> {
         // open country list page
         final selection = await _openCountryList();
         _countryNameSelection = selection;
+      } else {
+        _mapKey.currentState!.reloadPolygons();
       }
     }
     if (_countryNameSelection == null) return;

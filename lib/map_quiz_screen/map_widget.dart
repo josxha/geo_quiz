@@ -20,10 +20,10 @@ class MapWidget extends StatefulWidget {
   });
 
   @override
-  State<MapWidget> createState() => _MapWidgetState();
+  State<MapWidget> createState() => MapWidgetState();
 }
 
-class _MapWidgetState extends State<MapWidget> {
+class MapWidgetState extends State<MapWidget> {
   final _prefService = GetIt.I<PrefService>();
   final _controller = MapController();
 
@@ -48,8 +48,20 @@ class _MapWidgetState extends State<MapWidget> {
   );
 
   @override
+  void initState() {
+    reloadPolygons();
+    super.initState();
+  }
+
+  void reloadPolygons() {
+    setState(() {
+      _countryMapSelection = null;
+      _geoJsonParser.parseGeoJson(widget.geoJsonService.json);
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    _geoJsonParser.parseGeoJson(widget.geoJsonService.json);
     return ColoredBox(
       color: const Color.fromRGBO(170, 211, 223, 1),
       child: FlutterMap(
@@ -98,10 +110,10 @@ class _MapWidgetState extends State<MapWidget> {
       debugPrint('No country pressed');
       return;
     }
-    debugPrint(_countryMapSelection);
     setState(() {
       _countryMapSelection = polygon.properties['name'].toString();
     });
+    debugPrint(_countryMapSelection);
     widget.onMapSelected(_countryMapSelection!);
   }
 }
