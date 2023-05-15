@@ -20,6 +20,7 @@ dependencies:
   package_info_plus: ^4.0.0
   intl: any
   flutter_svg: ^2.0.5
+  font_awesome_flutter: ^10.4.0
 
 dev_dependencies:
   total_lints: ^2.19.0 # very strict set of lints

@@ -19,7 +19,7 @@ class AboutScreen extends StatelessWidget {
               applicationName: 'GeoQuiz',
               applicationVersion: appInfo.appVersion,
             ),
-            trailing: const Icon(Icons.keyboard_arrow_right),
+            trailing: const FaIcon(FontAwesomeIcons.arrowRight),
           ),
         ],
       ),

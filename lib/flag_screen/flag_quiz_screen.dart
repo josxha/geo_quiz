@@ -13,6 +13,7 @@ class _FlagQuizScreenState extends State<FlagQuizScreen> {
   @override
   Widget build(BuildContext context) {
     final code = randomCountryCode().toLowerCase();
+    debugPrint(code);
 
     return Scaffold(
       appBar: AppBar(title: Text(AppLocalizations.of(context)!.flags)),

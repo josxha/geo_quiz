@@ -19,5 +19,6 @@
   "continuePlaying": "Weiter spielen",
   "endGame": "Spiel beenden",
   "gamePausedText": "Das Spiel wurde pausiert.",
-  "flags": "Flaggen"
+  "flags": "Flaggen",
+  "highScores": "Bestenliste"
 }

@@ -31,7 +31,7 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       navigatorKey: MyApp._navigatorKey,
       debugShowCheckedModeBanner: false,
-      title: 'Geo Quiz',
+      title: 'GeoQuiz',
       theme: appTheme,
       onGenerateRoute: (settings) => Routes.generateRoute(settings),
       initialRoute: Routes.start.name,

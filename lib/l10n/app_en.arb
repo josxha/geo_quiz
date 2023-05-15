@@ -27,5 +27,6 @@
   "continuePlaying": "Continue playing",
   "endGame": "End game",
   "gamePausedText": "The game was paused.",
-  "flags": "Flags"
+  "flags": "Flags",
+  "highScores": "High Scores"
 }

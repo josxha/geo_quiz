@@ -79,7 +79,7 @@ class MapQuizScreenState extends State<MapQuizScreen> {
                       Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(Icons.access_alarm),
+                          const FaIcon(FontAwesomeIcons.clock),
                           const SizedBox(width: 8),
                           StreamBuilder(
                             stream: Stream.periodic(const Duration(seconds: 1)),
@@ -97,7 +97,7 @@ class MapQuizScreenState extends State<MapQuizScreen> {
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(Icons.stacked_bar_chart_outlined),
+                        const FaIcon(FontAwesomeIcons.chartBar),
                         const SizedBox(width: 8),
                         Text(
                           '${_states.values.where((e) => e.$1.isFinished()).length}/'
@@ -110,7 +110,7 @@ class MapQuizScreenState extends State<MapQuizScreen> {
               ),
               floatingActionButton: FloatingActionButton.extended(
                 label: Text(AppLocalizations.of(context)!.countryNames),
-                icon: const Icon(Icons.flag),
+                icon: const FaIcon(FontAwesomeIcons.flag),
                 onPressed: _onCountryListButtonClicked,
               ),
               body: Column(

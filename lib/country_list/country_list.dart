@@ -33,11 +33,11 @@ class _CountryListState extends State<CountryList> {
             padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
             child: SearchBar(
               controller: _controller,
-              leading: const Icon(Icons.search),
+              leading: const FaIcon(FontAwesomeIcons.magnifyingGlass),
               trailing: [
                 IconButton(
                   onPressed: _clearSearch,
-                  icon: const Icon(Icons.cancel),
+                  icon: const FaIcon(FontAwesomeIcons.ban),
                 ),
               ],
               hintText: AppLocalizations.of(context)!.searchHint,

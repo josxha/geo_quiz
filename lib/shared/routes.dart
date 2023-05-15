@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:geo_quiz/about_screen/about_screen.dart';
 import 'package:geo_quiz/country_list/country_list.dart';
 import 'package:geo_quiz/flag_screen/flag_quiz_screen.dart';
+import 'package:geo_quiz/high_score_screen/high_score_screen.dart';
 import 'package:geo_quiz/invalid_route_screen.dart';
 import 'package:geo_quiz/main.dart';
 import 'package:geo_quiz/map_quiz_screen/map_quiz_screen.dart';
@@ -14,6 +15,7 @@ enum Routes {
   mapQuiz('/mapQuiz'),
   flagQuiz('/flagQuiz'),
   countryList('countryList'),
+  highScores('/highScores'),
   settings('/settings'),
   about('/about');
 
@@ -71,6 +73,8 @@ enum Routes {
         return CountryList(args! as CountryListArgs);
       case Routes.flagQuiz:
         return const FlagQuizScreen();
+      case Routes.highScores:
+        return const HighScoreScreen();
       case Routes.settings:
         return const SettingsScreen();
       case Routes.about:
