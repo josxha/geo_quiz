@@ -38,7 +38,7 @@ class StartScreen extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       ElevatedButton(
-                        onPressed: () => Routes.quiz.push(),
+                        onPressed: () => Routes.flagQuiz.push(),
                         child: Padding(
                           padding: const EdgeInsets.all(16),
                           child: Row(

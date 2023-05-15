@@ -18,5 +18,6 @@
   "gamePaused": "Spiel pausiert",
   "continuePlaying": "Weiter spielen",
   "endGame": "Spiel beenden",
-  "gamePausedText": "Das Spiel wurde pausiert."
+  "gamePausedText": "Das Spiel wurde pausiert.",
+  "flags": "Flaggen"
 }

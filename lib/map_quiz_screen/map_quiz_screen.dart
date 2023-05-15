@@ -4,27 +4,27 @@ import 'package:collection/collection.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_geojson/flutter_map_geojson.dart';
 import 'package:geo_quiz/country_list/country_list.dart';
-import 'package:geo_quiz/quiz_screen/country_polygon.dart';
-import 'package:geo_quiz/quiz_screen/end_dialog.dart';
-import 'package:geo_quiz/quiz_screen/pause_dialog.dart';
+import 'package:geo_quiz/map_quiz_screen/country_polygon.dart';
+import 'package:geo_quiz/map_quiz_screen/end_dialog.dart';
+import 'package:geo_quiz/map_quiz_screen/pause_dialog.dart';
 import 'package:geo_quiz/shared/common.dart';
 import 'package:geo_quiz/shared/services/geojson_service.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:point_in_polygon/point_in_polygon.dart';
 
-class QuizScreen extends StatefulWidget {
+class MapQuizScreen extends StatefulWidget {
   final bool showOsm;
 
-  const QuizScreen({
+  const MapQuizScreen({
     this.showOsm = false,
     super.key,
   });
 
   @override
-  State<QuizScreen> createState() => QuizScreenState();
+  State<MapQuizScreen> createState() => MapQuizScreenState();
 }
 
-class QuizScreenState extends State<QuizScreen> {
+class MapQuizScreenState extends State<MapQuizScreen> {
   final _prefService = GetIt.I<PrefService>();
   final _controller = MapController();
   final _states = <String, (CountryState, int)>{};

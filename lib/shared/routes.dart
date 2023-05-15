@@ -2,16 +2,18 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:geo_quiz/about_screen/about_screen.dart';
 import 'package:geo_quiz/country_list/country_list.dart';
+import 'package:geo_quiz/flag_screen/flag_quiz_screen.dart';
 import 'package:geo_quiz/invalid_route_screen.dart';
 import 'package:geo_quiz/main.dart';
-import 'package:geo_quiz/quiz_screen/quiz_screen.dart';
+import 'package:geo_quiz/map_quiz_screen/map_quiz_screen.dart';
 import 'package:geo_quiz/settings_screen/settings_screen.dart';
 import 'package:geo_quiz/start_screen/start_screen.dart';
 
 enum Routes {
   start('/'),
-  quiz('/quiz'),
-  countryList('/quiz/list'),
+  mapQuiz('/mapQuiz'),
+  flagQuiz('/flagQuiz'),
+  countryList('countryList'),
   settings('/settings'),
   about('/about');
 
@@ -63,10 +65,12 @@ enum Routes {
     switch (route) {
       case Routes.start:
         return const StartScreen();
-      case Routes.quiz:
-        return const QuizScreen();
+      case Routes.mapQuiz:
+        return const MapQuizScreen();
       case Routes.countryList:
         return CountryList(args! as CountryListArgs);
+      case Routes.flagQuiz:
+        return const FlagQuizScreen();
       case Routes.settings:
         return const SettingsScreen();
       case Routes.about:

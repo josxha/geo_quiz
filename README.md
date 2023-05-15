@@ -25,3 +25,7 @@ A Geography Quiz! How many countries can you name on the map?
 
 - https://www.amcharts.com/svg-maps/
 - https://simplemaps.com/resources/svg-world
+
+### Where to get the country json with country codes
+
+- https://gist.github.com/keeguon/2310008

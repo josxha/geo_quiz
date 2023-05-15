@@ -26,5 +26,6 @@
   "gamePaused": "Game paused",
   "continuePlaying": "Continue playing",
   "endGame": "End game",
-  "gamePausedText": "The game was paused."
+  "gamePausedText": "The game was paused.",
+  "flags": "Flags"
 }
