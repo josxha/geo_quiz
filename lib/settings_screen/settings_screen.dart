@@ -25,9 +25,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           SwitchListTile(
             title: Text(AppLocalizations.of(context)!.labelCountries),
-            value: _prefService.labelCountriesAfterGuessed,
+            value: _prefService.labelCountriesAfterFinished,
             onChanged: (value) => setState(() {
-              _prefService.labelCountriesAfterGuessed = value;
+              _prefService.labelCountriesAfterFinished = value;
             }),
           ),
         ],

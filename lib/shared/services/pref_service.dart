@@ -1,7 +1,7 @@
 class PrefService {
   bool showTime = true;
   int maxTries = 3;
-  bool labelCountriesAfterGuessed = true;
+  bool labelCountriesAfterFinished = true;
 
   PrefService._();
 

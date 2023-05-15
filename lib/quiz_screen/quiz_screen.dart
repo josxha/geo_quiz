@@ -41,7 +41,9 @@ class QuizScreenState extends State<QuizScreen> {
           holePointsList: holePointsList,
           properties: properties,
           state: _states[properties['name']]?.$1 ?? CountryState.unset,
-          //showLabel: true,
+          showLabel: _prefService.labelCountriesAfterFinished
+              ? ShowLabel.ifFinished
+              : ShowLabel.never,
         );
       },
     );
