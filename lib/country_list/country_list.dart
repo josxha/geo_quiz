@@ -11,6 +11,8 @@ class CountryList extends StatefulWidget {
 
 class _CountryListState extends State<CountryList> {
   final _controller = TextEditingController();
+  final _searchBarFocus = FocusNode();
+
   late List<String> filtered;
 
   List<String> get countries => widget.args.countries;
@@ -21,6 +23,9 @@ class _CountryListState extends State<CountryList> {
   void initState() {
     filtered = countries;
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      _searchBarFocus.requestFocus();
+    });
   }
 
   @override
@@ -32,6 +37,7 @@ class _CountryListState extends State<CountryList> {
           Padding(
             padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
             child: SearchBar(
+              focusNode: _searchBarFocus,
               controller: _controller,
               leading: const FaIcon(FontAwesomeIcons.magnifyingGlass),
               trailing: [
