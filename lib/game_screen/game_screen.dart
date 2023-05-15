@@ -11,7 +11,7 @@ class GameScreen extends StatefulWidget {
     super.key,
     required this.child,
     required this.progress,
-    required this.floatingActionButton,
+    this.floatingActionButton,
     required this.stopwatch,
   });
 
