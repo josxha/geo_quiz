@@ -70,9 +70,11 @@ packages:
   flutter_map_geojson:
     dependency: "direct main"
     description:
-      path: "../flutter_map_geojson"
-      relative: true
-    source: path
+      path: "."
+      ref: main
+      resolved-ref: "0381b3442ab5ef002e18a7e91114ef5c38ba9411"
+      url: "https://github.com/josxha/flutter_map_geojson.git"
+    source: git
     version: "1.0.1"
   flutter_svg:
     dependency: "direct main"
