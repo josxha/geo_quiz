@@ -51,7 +51,7 @@ class StartScreen extends StatelessWidget {
           child: Center(
             child: ListView.separated(
               separatorBuilder: (_, __) => const SizedBox(height: 16),
-              itemCount: buttonData.length + 1,
+              itemCount: buttonData.length + 2,
               itemBuilder: (context, index) {
                 if (index == 0) {
                   return Padding(
@@ -66,6 +66,9 @@ class StartScreen extends StatelessWidget {
                       ),
                     ),
                   );
+                }
+                if (index == buttonData.length + 1) {
+                  return const SizedBox(height: 32);
                 }
                 final button = buttonData[index - 1];
                 return MenuButton(

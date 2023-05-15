@@ -4,6 +4,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_geojson/flutter_map_geojson.dart';
 import 'package:geo_quiz/country_list/country_list.dart';
+import 'package:geo_quiz/country_list/country_list_content.dart';
 import 'package:geo_quiz/map_quiz_screen/country_polygon.dart';
 import 'package:geo_quiz/map_quiz_screen/end_dialog.dart';
 import 'package:geo_quiz/map_quiz_screen/pause_dialog.dart';
@@ -32,7 +33,8 @@ class MapQuizScreenState extends State<MapQuizScreen> {
   final _stopwatch = Stopwatch();
   var _gamePaused = false;
 
-  String? _selection;
+  String? _countryNameSelection;
+  String? _countryMapSelection;
 
   Future<GeoJsonParser> _loadGeoJson() async {
     final parser = GeoJsonParser(
@@ -62,6 +64,9 @@ class MapQuizScreenState extends State<MapQuizScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final bigScreen = size.width > 900;
+
     return FutureBuilder<GeoJsonParser>(
       future: _futureGeoJson,
       builder: (context, snapshot) {
@@ -108,61 +113,104 @@ class MapQuizScreenState extends State<MapQuizScreen> {
                   ],
                 ),
               ),
-              floatingActionButton: FloatingActionButton.extended(
-                label: Text(AppLocalizations.of(context)!.countryNames),
-                icon: const FaIcon(FontAwesomeIcons.flag),
-                onPressed: _onCountryListButtonClicked,
-              ),
-              body: Column(
-                children: [
-                  if (_selection != null)
-                    ColoredBox(
-                      color: Colors.white,
-                      child: Padding(
-                        padding: const EdgeInsets.all(8),
-                        child: Text(
-                          AppLocalizations.of(context)!
-                              .selectedCountry(_selection!),
-                          style: const TextStyle(fontSize: 20),
-                        ),
-                      ),
+              floatingActionButton: bigScreen
+                  ? null
+                  : FloatingActionButton.extended(
+                      label: Text(AppLocalizations.of(context)!.countryNames),
+                      icon: const FaIcon(FontAwesomeIcons.flag),
+                      onPressed: _onCountryListButtonClicked,
                     ),
+              body: Row(
+                children: [
                   Expanded(
-                    child: ColoredBox(
-                      color: const Color.fromRGBO(170, 211, 223, 1),
-                      child: FlutterMap(
-                        mapController: _controller,
-                        options: MapOptions(
-                          zoom: 2.5,
-                          maxZoom: 6,
-                          minZoom: 1,
-                          interactiveFlags:
-                              InteractiveFlag.all & ~InteractiveFlag.rotate,
-                          maxBounds: LatLngBounds(
-                            LatLng(-60, -180),
-                            LatLng(90, 180),
-                          ),
-                          slideOnBoundaries: true,
-                          boundsOptions: const FitBoundsOptions(inside: true),
-                          onTap: (_, point) async =>
-                              _onMapPressed(context, geoJsonParser, point),
-                        ),
-                        children: [
-                          if (widget.showOsm)
-                            TileLayer(
-                              urlTemplate:
-                                  'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                    child: Column(
+                      children: [
+                        if (!bigScreen && _countryNameSelection != null)
+                          ColoredBox(
+                            color: Colors.white,
+                            child: Padding(
+                              padding: const EdgeInsets.all(8),
+                              child: Text(
+                                AppLocalizations.of(context)!
+                                    .selectedCountry(_countryNameSelection!),
+                                style: const TextStyle(fontSize: 20),
+                              ),
                             ),
-                          PolygonLayer(
-                            polygons: geoJsonParser.polygons,
-                            // polygonCulling: true, // throws exceptions of hot reload
                           ),
-                          // PolylineLayer(polylines: geoJson.polylines),
-                          // MarkerLayer(markers: geoJson.markers),
-                        ],
-                      ),
+                        Expanded(
+                          child: ColoredBox(
+                            color: const Color.fromRGBO(170, 211, 223, 1),
+                            child: FlutterMap(
+                              mapController: _controller,
+                              options: MapOptions(
+                                zoom: 2.5,
+                                maxZoom: 6,
+                                minZoom: 1,
+                                interactiveFlags: InteractiveFlag.all &
+                                    ~InteractiveFlag.rotate,
+                                maxBounds: LatLngBounds(
+                                  LatLng(-60, -180),
+                                  LatLng(90, 180),
+                                ),
+                                slideOnBoundaries: true,
+                                boundsOptions:
+                                    const FitBoundsOptions(inside: true),
+                                onTap: (_, point) async => _onMapPressed(
+                                  context,
+                                  geoJsonParser,
+                                  point,
+                                  bigScreen,
+                                ),
+                              ),
+                              children: [
+                                if (widget.showOsm)
+                                  TileLayer(
+                                    urlTemplate:
+                                        'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                                  ),
+                                PolygonLayer(
+                                  polygons: geoJsonParser.polygons,
+                                  // polygonCulling: true, // throws exceptions of hot reload
+                                ),
+                                // PolylineLayer(polylines: geoJson.polylines),
+                                // MarkerLayer(markers: geoJson.markers),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
+                  if (bigScreen)
+                    SizedBox(
+                      width: 300,
+                      child: FutureBuilder<GeoJsonService>(
+                        future: GetIt.I.getAsync<GeoJsonService>(),
+                        builder: (context, snapshot) {
+                          if (snapshot.data != null) {
+                            return CountryListContent(
+                              countries: snapshot.data!.features
+                                  .map((e) => e['properties']['name'] as String)
+                                  .whereNot((e) =>
+                                      _states[e]?.$1.isFinished() ?? false)
+                                  .sorted()
+                                  .toList(growable: false),
+                              selection: _countryNameSelection,
+                              onSelected: (selection) {
+                                if (_countryMapSelection == null) {
+                                  setState(() {
+                                    _countryNameSelection = selection;
+                                  });
+                                  return;
+                                }
+                                _addAttempt(geoJsonParser);
+                              },
+                            );
+                          }
+                          return const CircularProgressIndicator();
+                        },
+                      ),
+                    ),
                 ],
               ),
             ),
@@ -187,7 +235,7 @@ class MapQuizScreenState extends State<MapQuizScreen> {
         .toList(growable: false);
     return await Routes.countryList.push(
       Navigator.of(context),
-      CountryListArgs(countries, _selection),
+      CountryListArgs(countries, _countryNameSelection),
     ) as String?;
   }
 
@@ -195,6 +243,7 @@ class MapQuizScreenState extends State<MapQuizScreen> {
     BuildContext context,
     GeoJsonParser parser,
     LatLng latLng,
+    bool isBigScreen,
   ) async {
     // find pressed country
     final point = Point(x: latLng.latitude, y: latLng.longitude);
@@ -208,26 +257,39 @@ class MapQuizScreenState extends State<MapQuizScreen> {
       debugPrint('No country pressed');
       return;
     }
-    final clickedCountry = polygon.properties['name'].toString();
-    debugPrint(clickedCountry);
+    _countryMapSelection = polygon.properties['name'].toString();
+    debugPrint(_countryMapSelection);
 
     // abort if guessed too much
-    final state = _states[clickedCountry];
+    final state = _states[_countryMapSelection];
     final attempts = state?.$2 ?? 0;
     if (attempts >= _prefService.maxTries) return;
     if (state?.$1.isFinished() ?? false) return;
 
     // get guess if selection is null
-    if (_selection == null) {
-      final selection = await _openCountryList();
-      _selection = selection;
+    if (_countryNameSelection == null) {
+      if (!isBigScreen) {
+        // open country list page
+        final selection = await _openCountryList();
+        _countryNameSelection = selection;
+      }
     }
-    if (_selection == null) return;
+    if (_countryNameSelection == null) return;
 
     // check and show the result
-    final isCorrect = _selection == clickedCountry;
-    _addAttempt(parser, clickedCountry, isCorrect);
-    setState(() => _selection = null);
+    _addAttempt(parser);
+  }
+
+  Future<void> _onCountryListButtonClicked() async {
+    final selection = await _openCountryList();
+    setState(() => _countryNameSelection = selection);
+  }
+
+  void _addAttempt(GeoJsonParser parser) {
+    final isCorrect = _countryNameSelection == _countryMapSelection &&
+        _countryMapSelection != null;
+
+    // show snackbar
     final sms = ScaffoldMessenger.of(context);
     sms.clearSnackBars();
     sms.showSnackBar(
@@ -241,26 +303,28 @@ class MapQuizScreenState extends State<MapQuizScreen> {
         backgroundColor: isCorrect ? Colors.lightGreen : Colors.redAccent,
       ),
     );
-  }
 
-  Future<void> _onCountryListButtonClicked() async {
-    final selection = await _openCountryList();
-    setState(() => _selection = selection);
-  }
-
-  void _addAttempt(GeoJsonParser parser, String country, bool isCorrect) {
-    final state = _states[country];
+    // save attempt
+    final state = _states[_countryMapSelection];
     final previousAttempts = state?.$2 ?? 0;
     final currentAttempts = previousAttempts + 1;
-    if (isCorrect) {
-      _states[country] = (CountryState.correct, currentAttempts);
-    } else if (currentAttempts >= _prefService.maxTries) {
-      _states[country] = (CountryState.wrong, currentAttempts);
-    } else {
-      _states[country] = (CountryState.tried, currentAttempts);
-    }
     setState(() {
+      if (isCorrect) {
+        _states[_countryMapSelection!] =
+            (CountryState.correct, currentAttempts);
+      } else if (currentAttempts >= _prefService.maxTries) {
+        _states[_countryMapSelection!] = (CountryState.wrong, currentAttempts);
+      } else {
+        _states[_countryMapSelection!] = (CountryState.tried, currentAttempts);
+      }
+
       _futureGeoJson = _loadGeoJson();
+    });
+
+    // clear selection
+    setState(() {
+      _countryNameSelection = null;
+      _countryMapSelection = null;
     });
 
     // end dialog
