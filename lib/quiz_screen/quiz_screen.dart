@@ -255,7 +255,7 @@ class QuizScreenState extends State<QuizScreen> {
     });
 
     // end dialog
-    if (_states.length != parser.polygons.length) {
+    if (_states.length == parser.polygons.length) {
       showDialog(
         context: context,
         builder: (context) => EndDialog(
