@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_geojson/flutter_map_geojson.dart';
+import 'package:geo_quiz/country_list/country_list.dart';
 import 'package:geo_quiz/quiz_screen/country_polygon.dart';
 import 'package:geo_quiz/quiz_screen/end_dialog.dart';
 import 'package:geo_quiz/quiz_screen/pause_dialog.dart';
@@ -186,7 +187,7 @@ class QuizScreenState extends State<QuizScreen> {
         .toList(growable: false);
     return await Routes.countryList.push(
       Navigator.of(context),
-      countries,
+      CountryListArgs(countries, _selection),
     ) as String?;
   }
 

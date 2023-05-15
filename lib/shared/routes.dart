@@ -66,7 +66,7 @@ enum Routes {
       case Routes.quiz:
         return const QuizScreen();
       case Routes.countryList:
-        return CountryList(args! as List<String>);
+        return CountryList(args! as CountryListArgs);
       case Routes.settings:
         return const SettingsScreen();
       case Routes.about:

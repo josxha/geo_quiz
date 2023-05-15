@@ -1,9 +1,9 @@
 import 'package:geo_quiz/shared/common.dart';
 
 class CountryList extends StatefulWidget {
-  final List<String> countries;
+  final CountryListArgs args;
 
-  const CountryList(this.countries, {super.key});
+  const CountryList(this.args, {super.key});
 
   @override
   State<CountryList> createState() => _CountryListState();
@@ -13,9 +13,13 @@ class _CountryListState extends State<CountryList> {
   final _controller = TextEditingController();
   late List<String> filtered;
 
+  List<String> get countries => widget.args.countries;
+
+  String? get selection => widget.args.selection;
+
   @override
   void initState() {
-    filtered = widget.countries;
+    filtered = countries;
     super.initState();
   }
 
@@ -43,10 +47,16 @@ class _CountryListState extends State<CountryList> {
           Expanded(
             child: ListView.builder(
               itemCount: filtered.length,
-              itemBuilder: (context, index) => ListTile(
-                title: Text(filtered[index]),
-                onTap: () => Navigator.of(context).pop(filtered[index]),
-              ),
+              itemBuilder: (context, index) {
+                final country = filtered[index];
+                return ListTile(
+                  title: Text(country),
+                  selected: country == selection,
+                  selectedTileColor:
+                      Theme.of(context).primaryColor.withOpacity(0.1),
+                  onTap: () => Navigator.of(context).pop(country),
+                );
+              },
             ),
           ),
         ],
@@ -57,13 +67,13 @@ class _CountryListState extends State<CountryList> {
   void _search(String value) {
     if (value.isEmpty) {
       setState(() {
-        filtered = widget.countries;
+        filtered = countries;
       });
       return;
     }
     // debugPrint('Search: $value');
     setState(() {
-      filtered = widget.countries
+      filtered = countries
           .where(
             (country) => country.toLowerCase().contains(value.toLowerCase()),
           )
@@ -74,7 +84,15 @@ class _CountryListState extends State<CountryList> {
   void _clearSearch() {
     setState(() {
       _controller.text = '';
-      filtered = widget.countries;
+      filtered = countries;
     });
   }
+}
+
+@immutable
+class CountryListArgs {
+  final List<String> countries;
+  final String? selection;
+
+  const CountryListArgs(this.countries, this.selection);
 }
