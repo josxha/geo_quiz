@@ -34,4 +34,4 @@ flutter:
   assets:
     - assets/countries.json
     - assets/background.jpg
-    - assets/flags/*
+    - assets/flags/

@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:collection/collection.dart';
 
 const countryCodes = <Map<String, String>>[
@@ -254,4 +256,11 @@ String? countryNameToCode(String name) {
 String? countryCodeToName(String code) {
   final entry = countryCodes.firstWhereOrNull((e) => e['code'] == code);
   return entry?['name'];
+}
+
+final _random = Random.secure();
+
+String randomCountryCode() {
+  final entry = countryCodes[_random.nextInt(countryCodes.length)];
+  return entry['code']!;
 }

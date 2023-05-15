@@ -38,6 +38,23 @@ class StartScreen extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       ElevatedButton(
+                        onPressed: () => Routes.mapQuiz.push(),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Row(
+                            children: [
+                              const Icon(Icons.play_circle),
+                              const SizedBox(width: 16),
+                              Text(
+                                AppLocalizations.of(context)!.startGame,
+                                style: const TextStyle(fontSize: 20),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      ElevatedButton(
                         onPressed: () => Routes.flagQuiz.push(),
                         child: Padding(
                           padding: const EdgeInsets.all(16),
