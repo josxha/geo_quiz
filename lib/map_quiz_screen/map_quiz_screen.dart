@@ -1,23 +1,17 @@
 import 'dart:async';
 
 import 'package:collection/collection.dart';
-import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map_geojson/flutter_map_geojson.dart';
 import 'package:geo_quiz/country_list/country_list.dart';
 import 'package:geo_quiz/country_list/country_list_content.dart';
 import 'package:geo_quiz/map_quiz_screen/country_polygon.dart';
 import 'package:geo_quiz/map_quiz_screen/end_dialog.dart';
+import 'package:geo_quiz/map_quiz_screen/map_widget.dart';
 import 'package:geo_quiz/map_quiz_screen/pause_dialog.dart';
 import 'package:geo_quiz/shared/common.dart';
 import 'package:geo_quiz/shared/services/geojson_service.dart';
-import 'package:latlong2/latlong.dart';
-import 'package:point_in_polygon/point_in_polygon.dart';
 
 class MapQuizScreen extends StatefulWidget {
-  final bool showOsm;
-
   const MapQuizScreen({
-    this.showOsm = false,
     super.key,
   });
 
@@ -27,7 +21,7 @@ class MapQuizScreen extends StatefulWidget {
 
 class MapQuizScreenState extends State<MapQuizScreen> {
   final _prefService = GetIt.I<PrefService>();
-  final _controller = MapController();
+
   final _states = <String, (CountryState, int)>{};
   final _stopwatch = Stopwatch();
   var _gamePaused = false;
@@ -51,26 +45,6 @@ class MapQuizScreenState extends State<MapQuizScreen> {
       builder: (context, snapshot) {
         if (snapshot.data != null) {
           final geoJsonService = snapshot.data!;
-
-          final parser = GeoJsonParser(
-            polygonCreationCallback: (points, holePointsList, properties) {
-              var state = _states[properties['name']]?.$1 ?? CountryState.unset;
-              if (properties['name'] == _countryMapSelection) {
-                state = CountryState.selected;
-              }
-              return CountryPolygon(
-                points: points,
-                holePointsList: holePointsList,
-                properties: properties,
-                state: state,
-                showLabel: _prefService.labelCountriesAfterFinished
-                    ? ShowLabel.ifFinished
-                    : ShowLabel.never,
-              );
-            },
-          );
-          parser.parseGeoJson(geoJsonService.json);
-
           return WillPopScope(
             onWillPop: _onWillPop,
             child: Scaffold(
@@ -105,7 +79,7 @@ class MapQuizScreenState extends State<MapQuizScreen> {
                         const SizedBox(width: 8),
                         Text(
                           '${_states.values.where((e) => e.$1.isFinished()).length}/'
-                          '${parser.polygons.length}',
+                          '${geoJsonService.features.length}',
                         ),
                       ],
                     )
@@ -137,44 +111,14 @@ class MapQuizScreenState extends State<MapQuizScreen> {
                             ),
                           ),
                         Expanded(
-                          child: ColoredBox(
-                            color: const Color.fromRGBO(170, 211, 223, 1),
-                            child: FlutterMap(
-                              mapController: _controller,
-                              options: MapOptions(
-                                zoom: 2.5,
-                                maxZoom: 6,
-                                minZoom: 1,
-                                interactiveFlags: InteractiveFlag.all &
-                                    ~InteractiveFlag.rotate,
-                                maxBounds: LatLngBounds(
-                                  LatLng(-60, -180),
-                                  LatLng(90, 180),
-                                ),
-                                slideOnBoundaries: true,
-                                boundsOptions:
-                                    const FitBoundsOptions(inside: true),
-                                onTap: (_, point) async => _onMapPressed(
-                                  context,
-                                  parser,
-                                  point,
-                                  bigScreen,
-                                ),
-                              ),
-                              children: [
-                                if (widget.showOsm)
-                                  TileLayer(
-                                    urlTemplate:
-                                        'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                                  ),
-                                PolygonLayer(
-                                  polygons: parser.polygons,
-                                  // polygonCulling: true, // throws exceptions of hot reload
-                                ),
-                                // PolylineLayer(polylines: geoJson.polylines),
-                                // MarkerLayer(markers: geoJson.markers),
-                              ],
+                          child: MapWidget(
+                            geoJsonService: geoJsonService,
+                            onMapSelected: (sel) async => _onMapSelected(
+                              sel,
+                              bigScreen,
+                              geoJsonService,
                             ),
+                            states: _states,
                           ),
                         ),
                       ],
@@ -190,8 +134,9 @@ class MapQuizScreenState extends State<MapQuizScreen> {
                             return CountryListContent(
                               countries: snapshot.data!.features
                                   .map((e) => e['properties']['name'] as String)
-                                  .whereNot((e) =>
-                                      _states[e]?.$1.isFinished() ?? false)
+                                  .whereNot(
+                                    (e) => _states[e]?.$1.isFinished() ?? false,
+                                  )
                                   .sorted()
                                   .toList(growable: false),
                               selection: _countryNameSelection,
@@ -202,7 +147,7 @@ class MapQuizScreenState extends State<MapQuizScreen> {
                                   });
                                   return;
                                 }
-                                _addAttempt(parser);
+                                _addAttempt(geoJsonService);
                               },
                             );
                           }
@@ -238,55 +183,12 @@ class MapQuizScreenState extends State<MapQuizScreen> {
     ) as String?;
   }
 
-  Future<void> _onMapPressed(
-    BuildContext context,
-    GeoJsonParser parser,
-    LatLng latLng,
-    bool isBigScreen,
-  ) async {
-    // find pressed country
-    final point = Point(x: latLng.latitude, y: latLng.longitude);
-    final polygon = parser.polygons.firstWhereOrNull((polygon) {
-      final points = polygon.points
-          .map((e) => Point(x: e.latitude, y: e.longitude))
-          .toList(growable: false);
-      return Poly.isPointInPolygon(point, points);
-    }) as CountryPolygon?;
-    if (polygon == null) {
-      debugPrint('No country pressed');
-      return;
-    }
-    setState(() {
-      _countryMapSelection = polygon.properties['name'].toString();
-    });
-    debugPrint(_countryMapSelection);
-
-    // abort if guessed too much
-    final state = _states[_countryMapSelection];
-    final attempts = state?.$2 ?? 0;
-    if (attempts >= _prefService.maxTries) return;
-    if (state?.$1.isFinished() ?? false) return;
-
-    // get guess if selection is null
-    if (_countryNameSelection == null) {
-      if (!isBigScreen) {
-        // open country list page
-        final selection = await _openCountryList();
-        _countryNameSelection = selection;
-      }
-    }
-    if (_countryNameSelection == null) return;
-
-    // check and show the result
-    _addAttempt(parser);
-  }
-
   Future<void> _onCountryListButtonClicked() async {
     final selection = await _openCountryList();
     setState(() => _countryNameSelection = selection);
   }
 
-  void _addAttempt(GeoJsonParser parser) {
+  void _addAttempt(GeoJsonService geoJsonService) {
     final isCorrect = _countryNameSelection == _countryMapSelection &&
         _countryMapSelection != null;
 
@@ -327,7 +229,7 @@ class MapQuizScreenState extends State<MapQuizScreen> {
     });
 
     // end dialog
-    if (_states.length == parser.polygons.length) {
+    if (_states.length == geoJsonService.features.length) {
       showDialog(
         context: context,
         builder: (context) => EndDialog(
@@ -358,5 +260,32 @@ class MapQuizScreenState extends State<MapQuizScreen> {
       return false;
     }
     return true;
+  }
+
+  Future<void> _onMapSelected(
+    String mapSelection,
+    bool isBigScreen,
+    GeoJsonService geoJsonService,
+  ) async {
+    _countryMapSelection = mapSelection;
+
+    // abort if guessed too much
+    final state = _states[_countryMapSelection];
+    final attempts = state?.$2 ?? 0;
+    if (attempts >= _prefService.maxTries) return;
+    if (state?.$1.isFinished() ?? false) return;
+
+    // get guess if selection is null
+    if (_countryNameSelection == null) {
+      if (!isBigScreen) {
+        // open country list page
+        final selection = await _openCountryList();
+        _countryNameSelection = selection;
+      }
+    }
+    if (_countryNameSelection == null) return;
+
+    // check and show the result
+    _addAttempt(geoJsonService);
   }
 }
