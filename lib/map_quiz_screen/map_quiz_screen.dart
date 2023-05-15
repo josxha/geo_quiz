@@ -97,7 +97,7 @@ class MapQuizScreenState extends State<MapQuizScreen> {
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const FaIcon(FontAwesomeIcons.chartBar),
+                        const FaIcon(FontAwesomeIcons.chartLine),
                         const SizedBox(width: 8),
                         Text(
                           '${_states.values.where((e) => e.$1.isFinished()).length}/'

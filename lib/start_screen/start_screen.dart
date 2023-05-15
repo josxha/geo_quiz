@@ -12,27 +12,27 @@ class StartScreen extends StatelessWidget {
     final buttonData = [
       (
         Routes.mapQuiz,
-        Icons.play_circle_outline,
+        FontAwesomeIcons.map,
         AppLocalizations.of(context)!.startGame,
       ),
       (
         Routes.flagQuiz,
-        Icons.play_circle_outline,
+        FontAwesomeIcons.flag,
         AppLocalizations.of(context)!.startGame,
       ),
       (
         Routes.highScores,
         FontAwesomeIcons.trophy,
-        AppLocalizations.of(context)!.startGame,
+        AppLocalizations.of(context)!.highScores,
       ),
       (
         Routes.settings,
-        Icons.settings_outlined,
+        FontAwesomeIcons.gear,
         AppLocalizations.of(context)!.settings
       ),
       (
         Routes.about,
-        Icons.help_outline,
+        FontAwesomeIcons.question,
         AppLocalizations.of(context)!.aboutTheApp,
       ),
     ];

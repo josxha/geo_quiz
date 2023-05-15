@@ -7,19 +7,30 @@ class HighScoreScreen extends StatefulWidget {
   State<HighScoreScreen> createState() => _HighScoreScreenState();
 }
 
-class _HighScoreScreenState extends State<HighScoreScreen> {
+class _HighScoreScreenState extends State<HighScoreScreen>
+    with SingleTickerProviderStateMixin {
+  late final TabController _tabController;
+
+  @override
+  void initState() {
+    _tabController = TabController(length: 1, vsync: this);
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(AppLocalizations.of(context)!.highScores),
-        bottom: const TabBar(
-          tabs: [
-            Text('test'),
+        bottom: TabBar(
+          controller: _tabController,
+          tabs: const [
+            Text('Your Scores'),
           ],
         ),
       ),
       body: TabBarView(
+        controller: _tabController,
         children: [
           ListView.builder(
             itemBuilder: (context, index) {
