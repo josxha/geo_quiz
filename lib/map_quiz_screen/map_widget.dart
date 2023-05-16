@@ -49,13 +49,13 @@ class MapWidgetState extends State<MapWidget> {
 
   @override
   void initState() {
-    reloadPolygons();
+    reloadPolygons(null);
     super.initState();
   }
 
-  void reloadPolygons() {
+  void reloadPolygons(String? selection) {
     setState(() {
-      _countryMapSelection = null;
+      _countryMapSelection = selection;
       _geoJsonParser.parseGeoJson(widget.geoJsonService.json);
     });
   }

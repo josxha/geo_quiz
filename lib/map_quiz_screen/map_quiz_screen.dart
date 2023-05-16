@@ -149,7 +149,7 @@ class MapQuizScreenState extends State<MapQuizScreen> {
         _countryMapSelection != null;
 
     // show snackbar
-    final sms = ScaffoldMessenger.of(context);
+    /*final sms = ScaffoldMessenger.of(context);
     sms.clearSnackBars();
     sms.showSnackBar(
       SnackBar(
@@ -161,7 +161,7 @@ class MapQuizScreenState extends State<MapQuizScreen> {
         behavior: SnackBarBehavior.floating,
         backgroundColor: isCorrect ? Colors.lightGreen : Colors.redAccent,
       ),
-    );
+    );*/
 
     // save attempt
     final state = _states[_countryMapSelection];
@@ -180,7 +180,7 @@ class MapQuizScreenState extends State<MapQuizScreen> {
       _countryNameSelection = null;
       _countryMapSelection = null;
     });
-    _mapKey.currentState!.reloadPolygons();
+    _mapKey.currentState!.reloadPolygons(null);
 
     // end dialog
     if (_states.length == geoJsonService.features.length) {
@@ -216,7 +216,7 @@ class MapQuizScreenState extends State<MapQuizScreen> {
         final selection = await _openCountryList();
         _countryNameSelection = selection;
       } else {
-        _mapKey.currentState!.reloadPolygons();
+        _mapKey.currentState!.reloadPolygons(_countryMapSelection);
       }
     }
     if (_countryNameSelection == null) return;
