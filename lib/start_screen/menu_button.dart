@@ -1,13 +1,13 @@
 import 'package:geo_quiz/shared/common.dart';
 
 class MenuButton extends StatelessWidget {
-  final Routes route;
+  final VoidCallback onTap;
   final IconData iconData;
   final String label;
 
   const MenuButton({
     super.key,
-    required this.route,
+    required this.onTap,
     required this.iconData,
     required this.label,
   });
@@ -19,7 +19,7 @@ class MenuButton extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
         child: ElevatedButton(
-          onPressed: () => route.push(),
+          onPressed: onTap,
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Row(

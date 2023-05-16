@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:geo_quiz/shared/routes.dart';
+import 'package:geo_quiz/start_screen/about_app_dialog.dart';
 import 'package:geo_quiz/start_screen/menu_button.dart';
 
 class StartScreen extends StatelessWidget {
@@ -11,27 +12,32 @@ class StartScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final buttonData = [
       (
-        Routes.mapQuiz,
+        () => Routes.mapQuiz.push(),
         FontAwesomeIcons.map,
         AppLocalizations.of(context)!.startGame,
       ),
       (
-        Routes.flagQuiz,
+        () => Routes.flagQuiz.push(),
         FontAwesomeIcons.flag,
         AppLocalizations.of(context)!.startGame,
       ),
       (
-        Routes.highScores,
+        () => Routes.highScores.push(),
         FontAwesomeIcons.trophy,
         AppLocalizations.of(context)!.highScores,
       ),
       (
-        Routes.settings,
+        () => Routes.settings.push(),
         FontAwesomeIcons.gear,
         AppLocalizations.of(context)!.settings
       ),
       (
-        Routes.about,
+        () async {
+          return showDialog(
+            context: context,
+            builder: (context) => const AboutAppDialog(),
+          );
+        },
         FontAwesomeIcons.question,
         AppLocalizations.of(context)!.aboutTheApp,
       ),
@@ -72,7 +78,7 @@ class StartScreen extends StatelessWidget {
                 }
                 final button = buttonData[index - 1];
                 return MenuButton(
-                  route: button.$1,
+                  onTap: button.$1,
                   iconData: button.$2,
                   label: button.$3,
                 );

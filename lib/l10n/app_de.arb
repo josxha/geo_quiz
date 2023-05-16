@@ -20,5 +20,6 @@
   "endGame": "Spiel beenden",
   "gamePausedText": "Das Spiel wurde pausiert.",
   "flags": "Flaggen",
+  "close": "Schließen",
   "highScores": "Bestenliste"
 }
