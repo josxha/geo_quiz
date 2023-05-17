@@ -15,13 +15,10 @@ jobs:
         with:
           flutter-version: '3.x'
       - name: Get dependencies
-        working-directory: ./mein_hafen
         run: flutter pub get
       #- name: Run tests
-      #  working-directory: ./mein_hafen
       #  run: flutter test
       - name: Build Web
-        working-directory: ./mein_hafen
         run: flutter build web
       - name: Deploy via FTP
         uses: SamKirkland/FTP-Deploy-Action@master
