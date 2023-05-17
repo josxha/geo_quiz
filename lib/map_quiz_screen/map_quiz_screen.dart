@@ -133,9 +133,11 @@ class MapQuizScreenState extends State<MapQuizScreen> {
         .whereNot((e) => _states[e]?.$1.isFinished() ?? false)
         .sorted()
         .toList(growable: false);
-    return await Routes.countryList.push(
-      Navigator.of(context),
-      CountryListArgs(countries, _countryNameSelection),
+    return Navigator.of(context).push<String?>(
+      MaterialPageRoute<String?>(
+        builder: (context) =>
+            CountryList(CountryListArgs(countries, _countryNameSelection)),
+      ),
     ) as String?;
   }
 

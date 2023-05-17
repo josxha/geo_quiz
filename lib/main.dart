@@ -11,14 +11,6 @@ Future<void> main() async {
 }
 
 class MyApp extends StatefulWidget {
-  static final _navigatorKey = GlobalKey<NavigatorState>();
-
-  // ignore: unreachable_from_main
-  static NavigatorState get navigator => MyApp._navigatorKey.currentState!;
-
-  // ignore: unreachable_from_main
-  static BuildContext get context => MyApp._navigatorKey.currentContext!;
-
   const MyApp({super.key});
 
   @override
@@ -28,13 +20,11 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      navigatorKey: MyApp._navigatorKey,
+    return MaterialApp.router(
+      routerConfig: Routes.router,
       debugShowCheckedModeBanner: false,
       title: 'GeoQuiz',
       theme: appTheme,
-      onGenerateRoute: (settings) => Routes.generateRoute(settings),
-      initialRoute: Routes.start.name,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
     );

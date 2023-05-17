@@ -4,6 +4,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:geo_quiz/shared/routes.dart';
 import 'package:geo_quiz/start_screen/about_app_dialog.dart';
 import 'package:geo_quiz/start_screen/menu_button.dart';
+import 'package:go_router/go_router.dart';
 
 class StartScreen extends StatelessWidget {
   const StartScreen({super.key});
@@ -12,32 +13,30 @@ class StartScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final buttonData = [
       (
-        () => Routes.mapQuiz.push(),
+        () => context.pushNamed(Routes.mapQuiz),
         FontAwesomeIcons.map,
         AppLocalizations.of(context)!.startGame,
       ),
       (
-        () => Routes.flagQuiz.push(),
+        () => context.pushNamed(Routes.flagQuiz),
         FontAwesomeIcons.flag,
         AppLocalizations.of(context)!.startGame,
       ),
       (
-        () => Routes.highScores.push(),
+        () => context.pushNamed(Routes.highScores),
         FontAwesomeIcons.trophy,
         AppLocalizations.of(context)!.highScores,
       ),
       (
-        () => Routes.settings.push(),
+        () => context.pushNamed(Routes.settings),
         FontAwesomeIcons.gear,
         AppLocalizations.of(context)!.settings
       ),
       (
-        () async {
-          return showDialog(
-            context: context,
-            builder: (context) => const AboutAppDialog(),
-          );
-        },
+        () async => showDialog(
+              context: context,
+              builder: (_) => const AboutAppDialog(),
+            ),
         FontAwesomeIcons.question,
         AppLocalizations.of(context)!.aboutTheApp,
       ),

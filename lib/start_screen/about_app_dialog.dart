@@ -34,8 +34,9 @@ class AboutAppDialog extends StatelessWidget {
       ),
       actions: [
         MaterialButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text(AppLocalizations.of(context)!.close)),
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(AppLocalizations.of(context)!.close),
+        ),
       ],
     );
   }

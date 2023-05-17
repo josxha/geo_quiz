@@ -1,4 +1,5 @@
 import 'package:geo_quiz/shared/common.dart';
+import 'package:go_router/go_router.dart';
 
 class EndDialog extends StatelessWidget {
   final int correct;
@@ -41,9 +42,8 @@ class EndDialog extends StatelessWidget {
       actions: [
         MaterialButton(
           onPressed: () {
-            Navigator.of(context).popUntil((route) {
-              return route.settings.name == Routes.start.name;
-            });
+            Navigator.of(context).pop(); // dismiss dialog
+            context.replaceNamed(Routes.start);
           },
           child: Text(AppLocalizations.of(context)!.ok),
         )
