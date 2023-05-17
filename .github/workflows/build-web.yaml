@@ -1,0 +1,34 @@
+name: Build Web
+
+on:
+  push:
+    branches:
+      - main
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Setup flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.x'
+      - name: Get dependencies
+        working-directory: ./mein_hafen
+        run: flutter pub get
+      #- name: Run tests
+      #  working-directory: ./mein_hafen
+      #  run: flutter test
+      - name: Build Web
+        working-directory: ./mein_hafen
+        run: flutter build web
+      - name: Deploy via FTP
+        uses: SamKirkland/FTP-Deploy-Action@master
+        with:
+          server: ${{ secrets.REMOTE_HOST }}
+          username: ${{ secrets.REMOTE_USER }}
+          password: ${{ secrets.REMOTE_PASSWORD }}
+          port: ${{ secrets.REMOTE_PORT }}
+          local-dir: "./build/web/"
+          server-dir: ${{ secrets.REMOTE_TARGET }}
