@@ -1,8 +1,7 @@
-import 'dart:math';
-
 import 'package:collection/collection.dart';
+import 'package:flutter/foundation.dart';
 
-const countryCodes = <Map<String, String>>[
+const rawCountries = <Map<String, String>>[
   {'name': 'Afghanistan', 'code': 'AF'},
   {'name': 'Åland Islands', 'code': 'AX'},
   {'name': 'Albania', 'code': 'AL'},
@@ -249,18 +248,31 @@ const countryCodes = <Map<String, String>>[
 ];
 
 String? countryNameToCode(String name) {
-  final entry = countryCodes.firstWhereOrNull((e) => e['name'] == name);
+  final entry = rawCountries.firstWhereOrNull((e) => e['name'] == name);
   return entry?['code'];
 }
 
 String? countryCodeToName(String code) {
-  final entry = countryCodes.firstWhereOrNull((e) => e['code'] == code);
+  final entry = rawCountries.firstWhereOrNull((e) => e['code'] == code);
   return entry?['name'];
 }
 
-final _random = Random.secure();
+List<Country> parseCountries() => rawCountries
+    .map(
+      (e) => Country(
+        name: e['name']!,
+        code: e['code']!,
+      ),
+    )
+    .toList();
 
-String randomCountryCode() {
-  final entry = countryCodes[_random.nextInt(countryCodes.length)];
-  return entry['code']!;
+@immutable
+class Country {
+  final String code;
+  final String name;
+
+  const Country({required this.code, required this.name});
+
+  @override
+  String toString() => '$name ($code)';
 }

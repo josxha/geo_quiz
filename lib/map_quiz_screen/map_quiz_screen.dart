@@ -151,19 +151,12 @@ class MapQuizScreenState extends State<MapQuizScreen> {
         _countryMapSelection != null;
 
     // show snackbar
-    /*final sms = ScaffoldMessenger.of(context);
-    sms.clearSnackBars();
-    sms.showSnackBar(
-      SnackBar(
-        content: Text(
-          isCorrect
-              ? AppLocalizations.of(context)!.correctAnswer
-              : AppLocalizations.of(context)!.wrongAnswer,
-        ),
-        behavior: SnackBarBehavior.floating,
-        backgroundColor: isCorrect ? Colors.lightGreen : Colors.redAccent,
-      ),
-    );*/
+    context.showSnackBar(
+      isCorrect
+          ? AppLocalizations.of(context)!.correctAnswer
+          : AppLocalizations.of(context)!.wrongAnswer,
+      color: isCorrect ? Colors.lightGreen : Colors.redAccent,
+    );
 
     // save attempt
     final state = _states[_countryMapSelection];

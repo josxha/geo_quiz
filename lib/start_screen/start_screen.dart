@@ -27,11 +27,11 @@ class StartScreen extends StatelessWidget {
         FontAwesomeIcons.trophy,
         AppLocalizations.of(context)!.highScores,
       ),
-      (
+      /*(
         () => context.pushNamed(Routes.settings),
         FontAwesomeIcons.gear,
         AppLocalizations.of(context)!.settings
-      ),
+      ),*/
       (
         () async => showDialog(
               context: context,
@@ -41,7 +41,7 @@ class StartScreen extends StatelessWidget {
         AppLocalizations.of(context)!.aboutTheApp,
       ),
     ];
-
+    final size = MediaQuery.of(context).size;
     return Scaffold(
       body: DecoratedBox(
         decoration: const BoxDecoration(
@@ -54,34 +54,51 @@ class StartScreen extends StatelessWidget {
         child: SafeArea(
           minimum: const EdgeInsets.only(top: 16),
           child: Center(
-            child: ListView.separated(
-              separatorBuilder: (_, __) => const SizedBox(height: 16),
-              itemCount: buttonData.length + 2,
-              itemBuilder: (context, index) {
-                if (index == 0) {
-                  return Padding(
+            child: Container(
+              constraints: BoxConstraints(
+                maxWidth: switch (size.width) {
+                  > 600 => 800,
+                  _ => 400,
+                },
+              ),
+              child: CustomScrollView(
+                slivers: [
+                  SliverPadding(
                     padding: const EdgeInsets.only(top: 64, bottom: 16),
-                    child: Text(
-                      'GeoQuiz',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 50,
-                        fontWeight: FontWeight.bold,
-                        color: Theme.of(context).primaryColor,
+                    sliver: SliverToBoxAdapter(
+                      child: Text(
+                        'GeoQuiz',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 50,
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context).primaryColor,
+                        ),
                       ),
                     ),
-                  );
-                }
-                if (index == buttonData.length + 1) {
-                  return const SizedBox(height: 32);
-                }
-                final button = buttonData[index - 1];
-                return MenuButton(
-                  onTap: button.$1,
-                  iconData: button.$2,
-                  label: button.$3,
-                );
-              },
+                  ),
+                  SliverGrid.builder(
+                    itemCount: buttonData.length,
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: size.width > 600 ? 2 : 1,
+                      childAspectRatio: switch (size.width) {
+                        > 700 => 5,
+                        > 600 => 3,
+                        _ => 5,
+                      },
+                    ),
+                    itemBuilder: (context, index) {
+                      final button = buttonData[index];
+                      return MenuButton(
+                        onTap: button.$1,
+                        iconData: button.$2,
+                        label: button.$3,
+                      );
+                    },
+                  ),
+                  const SliverPadding(padding: EdgeInsets.only(top: 32))
+                ],
+              ),
             ),
           ),
         ),

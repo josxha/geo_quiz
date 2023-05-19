@@ -18,20 +18,22 @@ class MenuButton extends StatelessWidget {
       constraints: const BoxConstraints(maxWidth: 300),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-        child: ElevatedButton(
-          onPressed: onTap,
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                FaIcon(iconData),
-                const SizedBox(width: 16),
-                Text(
-                  label,
-                  style: const TextStyle(fontSize: 20),
-                ),
-              ],
+        child: Card(
+          child: MaterialButton(
+            onPressed: onTap,
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  FaIcon(iconData),
+                  const SizedBox(width: 16),
+                  Text(
+                    label,
+                    style: const TextStyle(fontSize: 20),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
