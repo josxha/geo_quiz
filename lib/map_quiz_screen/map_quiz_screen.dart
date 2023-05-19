@@ -39,9 +39,8 @@ class MapQuizScreenState extends State<MapQuizScreen> {
           final geoJsonService = snapshot.data!;
           return GameScreen(
             stopwatch: _stopwatch,
-            progress:
-                '${_states.values.where((e) => e.$1.isFinished()).length}/'
-                '${geoJsonService.features.length}',
+            progress: _states.values.where((e) => e.$1.isFinished()).length /
+                geoJsonService.features.length,
             floatingActionButton: bigScreen
                 ? null
                 : FloatingActionButton.extended(

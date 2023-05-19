@@ -3,14 +3,16 @@ import 'package:geo_quiz/shared/common.dart';
 
 class GameScreen extends StatefulWidget {
   final Widget child;
-  final String progress;
+  final double? progress;
+  final int? errors;
   final Widget? floatingActionButton;
   final Stopwatch stopwatch;
 
   const GameScreen({
     super.key,
     required this.child,
-    required this.progress,
+    this.progress,
+    this.errors,
     this.floatingActionButton,
     required this.stopwatch,
   });
@@ -58,14 +60,24 @@ class _GameScreenState extends State<GameScreen> {
                     ),
                   ],
                 ),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const FaIcon(FontAwesomeIcons.chartLine),
-                  const SizedBox(width: 8),
-                  Text(widget.progress),
-                ],
-              )
+              if (widget.progress != null)
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const FaIcon(FontAwesomeIcons.chartLine),
+                    const SizedBox(width: 8),
+                    Text('${(widget.progress! * 100).toStringAsFixed(2)} %'),
+                  ],
+                ),
+              if (widget.errors != null)
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const FaIcon(FontAwesomeIcons.xmark),
+                    const SizedBox(width: 8),
+                    Text(widget.errors!.toString()),
+                  ],
+                ),
             ],
           ),
         ),
