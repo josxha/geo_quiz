@@ -150,6 +150,7 @@ class MapQuizScreenState extends State<MapQuizScreen> {
         _countryMapSelection != null;
 
     // show snackbar
+    _stopwatch.stop();
     context.showSnackBar(
       isCorrect
           ? AppLocalizations.of(context)!.correctAnswer

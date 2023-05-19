@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:geo_quiz/game_screen/game_screen.dart';
+import 'package:geo_quiz/map_quiz_screen/end_dialog.dart';
 import 'package:geo_quiz/shared/common.dart';
 import 'package:geo_quiz/shared/countries.dart';
 
@@ -15,26 +16,33 @@ class FlagQuizScreen extends StatefulWidget {
 class _FlagQuizScreenState extends State<FlagQuizScreen> {
   final _stopwatch = Stopwatch();
   final _random = Random.secure();
-  late final List<Country> countries = parseCountries()..shuffle(_random);
-  late final int totalCountries = countries.length;
+  static const _amountAnswers = 4;
+  late final List<Country> _countriesTotal = parseCountries()..shuffle(_random);
+  late final List<Country> _countriesQueue = List.of(_countriesTotal);
+  final _countriesWrong = <Country>[];
+
   var _correctCounter = 0;
-  var _wrongCounter = 0;
-  final _amountAnswers = 4;
 
-  bool? _answeredCorrectly;
-  late List<int> _selectedIndexes;
-  late int _correctIndex;
+  bool? _guessedCorrectly;
+  late List<Country> _selectedCountries;
+  late Country _correctCountry;
 
-  Country get _correctCountry => countries[_correctIndex];
+  int get _amountGuessedWrong => _countriesWrong.length;
+
+  int get _amountTotal => _countriesTotal.length;
 
   void newFlag() {
-    _answeredCorrectly = null;
-    _selectedIndexes = List.generate(
-      _amountAnswers,
-      (index) => _random.nextInt(countries.length),
-    );
-    _correctIndex = _selectedIndexes[_random.nextInt(_amountAnswers)];
+    _guessedCorrectly = null;
+    _correctCountry = _countriesQueue[_random.nextInt(_countriesQueue.length)];
     debugPrint(_correctCountry.toString());
+    final selected = <Country>{_correctCountry};
+    while (selected.length < _amountAnswers) {
+      final randomCountry =
+          _countriesTotal[_random.nextInt(_countriesTotal.length)];
+      selected.add(randomCountry);
+    }
+    _selectedCountries = selected.toList(growable: false);
+    _selectedCountries.shuffle(_random);
   }
 
   @override
@@ -47,8 +55,8 @@ class _FlagQuizScreenState extends State<FlagQuizScreen> {
   Widget build(BuildContext context) {
     return GameScreen(
       stopwatch: _stopwatch,
-      progress: _correctCounter / totalCountries,
-      errors: _wrongCounter,
+      progress: _correctCounter / _amountTotal,
+      errors: _amountGuessedWrong,
       child: DecoratedBox(
         decoration: const BoxDecoration(
           image: DecorationImage(
@@ -70,13 +78,11 @@ class _FlagQuizScreenState extends State<FlagQuizScreen> {
                 Wrap(
                   runSpacing: 16,
                   spacing: 16,
-                  children: _selectedIndexes.map((e) {
-                    final country = countries[e];
-                    final isCorrectButton =
-                        country.code == _correctCountry.code;
+                  children: _selectedCountries.map((e) {
+                    final isCorrectButton = e.code == _correctCountry.code;
                     return MaterialButton(
-                      color: (isCorrectButton && _answeredCorrectly != null)
-                          ? switch (_answeredCorrectly) {
+                      color: (isCorrectButton && _guessedCorrectly != null)
+                          ? switch (_guessedCorrectly) {
                               true => Colors.lightGreen,
                               false => Colors.redAccent,
                               _ => Colors.white,
@@ -84,25 +90,9 @@ class _FlagQuizScreenState extends State<FlagQuizScreen> {
                           : Colors.white,
                       child: Padding(
                         padding: const EdgeInsets.all(16),
-                        child: Text(country.name),
+                        child: Text(e.name),
                       ),
-                      onPressed: () async {
-                        setState(() {
-                          _answeredCorrectly =
-                              country.code == _correctCountry.code;
-                          if (_answeredCorrectly ?? false) {
-                            _correctCounter++;
-                          } else {
-                            _wrongCounter++;
-                          }
-                        });
-                        await Future.delayed(const Duration(seconds: 1), () {
-                          setState(() {
-                            countries.removeAt(_correctIndex);
-                            newFlag();
-                          });
-                        });
-                      },
+                      onPressed: () async => _onButtonClicked(e),
                     );
                   }).toList(growable: false),
                 )
@@ -112,5 +102,35 @@ class _FlagQuizScreenState extends State<FlagQuizScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> _onButtonClicked(Country country) async {
+    setState(() {
+      _guessedCorrectly = country.code == _correctCountry.code;
+      if (_guessedCorrectly ?? false) {
+        _correctCounter++;
+      } else {
+        _countriesWrong.add(country);
+      }
+    });
+    await Future.delayed(const Duration(seconds: 1), () {
+      setState(() {
+        _countriesQueue.remove(_correctCountry);
+        newFlag();
+      });
+    });
+
+    // end dialog
+    if (_countriesQueue.length == _amountTotal) {
+      _stopwatch.stop();
+      await showDialog(
+        context: context,
+        builder: (context) => EndDialog(
+          correct: _amountTotal,
+          wrong: _amountGuessedWrong,
+          time: _stopwatch.elapsed,
+        ),
+      );
+    }
   }
 }
