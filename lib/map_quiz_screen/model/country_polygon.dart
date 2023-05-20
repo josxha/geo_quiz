@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:geo_quiz/map_quiz_screen/model/country_state.dart';
 
 class CountryPolygon extends Polygon {
   final Map<String, dynamic> properties;
@@ -20,28 +21,14 @@ class CountryPolygon extends Polygon {
           label: switch (showLabel) {
             ShowLabel.never => null,
             ShowLabel.ifFinished =>
-              state.isFinished() ? properties['name'] : null,
+              state.isFinished ? properties['name'] : null,
             ShowLabel.always => properties['name'],
           },
         );
 }
 
-enum CountryState {
-  unset,
-  selected,
-  tried,
-  wrong,
-  correct;
-
-  Color toColor() => switch (this) {
-        unset => Colors.grey,
-        selected => Colors.blueAccent,
-        tried => Colors.amber,
-        wrong => Colors.redAccent,
-        correct => Colors.lightGreen,
-      };
-
-  bool isFinished() => [wrong, correct].contains(this);
+enum ShowLabel {
+  never,
+  ifFinished,
+  always;
 }
-
-enum ShowLabel { never, ifFinished, always }

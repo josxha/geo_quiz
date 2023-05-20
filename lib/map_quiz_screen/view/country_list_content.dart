@@ -1,31 +1,25 @@
+import 'package:geo_quiz/map_quiz_screen/provider/game_state.dart';
 import 'package:geo_quiz/shared/common.dart';
 
-class CountryListContent extends StatefulWidget {
-  final List<String> countries;
-  final String? selection;
-  final void Function(String) onSelected;
+class CountryListContent extends ConsumerStatefulWidget {
+  final VoidCallback? onSelected;
 
   const CountryListContent({
     super.key,
-    required this.onSelected,
-    required this.countries,
-    this.selection,
+    this.onSelected,
   });
 
   @override
-  State<CountryListContent> createState() => _CountryListContentState();
+  ConsumerState<CountryListContent> createState() => _CountryListContentState();
 }
 
-class _CountryListContentState extends State<CountryListContent> {
+class _CountryListContentState extends ConsumerState<CountryListContent> {
   final _searchController = TextEditingController();
   final _scrollController = ScrollController();
   final _searchBarFocus = FocusNode();
 
-  late List<String> filtered;
-
   @override
   void initState() {
-    filtered = widget.countries;
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       _searchBarFocus.requestFocus();
@@ -34,6 +28,7 @@ class _CountryListContentState extends State<CountryListContent> {
 
   @override
   Widget build(BuildContext context) {
+    final gameState = ref.watch(mapGameStateProvider);
     return Column(
       children: [
         Padding(
@@ -44,12 +39,12 @@ class _CountryListContentState extends State<CountryListContent> {
             leading: const FaIcon(FontAwesomeIcons.magnifyingGlass),
             trailing: [
               IconButton(
-                onPressed: _clearSearch,
+                onPressed: gameState.resetListFilter,
                 icon: const FaIcon(FontAwesomeIcons.ban),
               ),
             ],
             hintText: AppLocalizations.of(context)!.searchHint,
-            onChanged: _search,
+            onChanged: (value) => gameState.listFilter = value,
           ),
         ),
         Expanded(
@@ -59,15 +54,18 @@ class _CountryListContentState extends State<CountryListContent> {
             controller: _scrollController,
             child: ListView.builder(
               controller: _scrollController,
-              itemCount: filtered.length,
+              itemCount: gameState.filteredCountries.length,
               itemBuilder: (context, index) {
-                final country = filtered[index];
+                final country = gameState.filteredCountries[index];
                 return ListTile(
-                  title: Text(country),
-                  selected: country == widget.selection,
+                  title: Text(country.name),
+                  selected: country == gameState.countryListSelection,
                   selectedTileColor:
                       Theme.of(context).primaryColor.withOpacity(0.1),
-                  onTap: () => widget.onSelected(country),
+                  onTap: () {
+                    gameState.countryListSelection = country;
+                    widget.onSelected?.call();
+                  },
                 );
               },
             ),
@@ -75,29 +73,5 @@ class _CountryListContentState extends State<CountryListContent> {
         ),
       ],
     );
-  }
-
-  void _search(String value) {
-    if (value.isEmpty) {
-      setState(() {
-        filtered = widget.countries;
-      });
-      return;
-    }
-    // debugPrint('Search: $value');
-    setState(() {
-      filtered = widget.countries
-          .where(
-            (country) => country.toLowerCase().contains(value.toLowerCase()),
-          )
-          .toList(growable: false);
-    });
-  }
-
-  void _clearSearch() {
-    setState(() {
-      _searchController.text = '';
-      filtered = widget.countries;
-    });
   }
 }

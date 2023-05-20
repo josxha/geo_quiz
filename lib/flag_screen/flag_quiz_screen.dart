@@ -2,7 +2,7 @@ import 'dart:math';
 
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:geo_quiz/game_screen/game_screen.dart';
-import 'package:geo_quiz/map_quiz_screen/end_dialog.dart';
+import 'package:geo_quiz/map_quiz_screen/view/end_dialog.dart';
 import 'package:geo_quiz/shared/common.dart';
 import 'package:geo_quiz/shared/countries.dart';
 

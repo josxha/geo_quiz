@@ -6,7 +6,7 @@ class GameScreen extends StatefulWidget {
   final double? progress;
   final int? errors;
   final Widget? floatingActionButton;
-  final Stopwatch stopwatch;
+  final Stopwatch? stopwatch;
 
   const GameScreen({
     super.key,
@@ -14,7 +14,7 @@ class GameScreen extends StatefulWidget {
     this.progress,
     this.errors,
     this.floatingActionButton,
-    required this.stopwatch,
+    this.stopwatch,
   });
 
   @override
@@ -27,7 +27,7 @@ class _GameScreenState extends State<GameScreen> {
 
   @override
   void initState() {
-    widget.stopwatch.start();
+    widget.stopwatch?.start();
     super.initState();
   }
 
@@ -41,7 +41,7 @@ class _GameScreenState extends State<GameScreen> {
             spacing: 16,
             runSpacing: 16,
             children: [
-              if (_prefService.showTime)
+              if (_prefService.showTime && widget.stopwatch != null)
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -50,7 +50,7 @@ class _GameScreenState extends State<GameScreen> {
                     StreamBuilder(
                       stream: Stream.periodic(const Duration(seconds: 1)),
                       builder: (context, snapshot) {
-                        final duration = widget.stopwatch.elapsed;
+                        final duration = widget.stopwatch!.elapsed;
                         final min = duration.inMinutes;
                         final sec = (duration.inSeconds % 60)
                             .toString()
@@ -91,7 +91,7 @@ class _GameScreenState extends State<GameScreen> {
     if (_gamePaused) return true;
 
     _gamePaused = true;
-    widget.stopwatch.stop();
+    widget.stopwatch?.stop();
 
     final continueGame = await showDialog(
           context: context,
@@ -101,7 +101,7 @@ class _GameScreenState extends State<GameScreen> {
     // debugPrint('continue game: $continueGame');
     if (continueGame) {
       _gamePaused = false;
-      widget.stopwatch.start();
+      widget.stopwatch?.start();
       return false;
     }
     return true;

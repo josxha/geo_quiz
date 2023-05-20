@@ -1,5 +1,4 @@
 import 'package:geo_quiz/shared/common.dart';
-import 'package:go_router/go_router.dart';
 
 class EndDialog extends StatelessWidget {
   final int correct;
