@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geo_quiz/shared/locator.dart';
 import 'package:geo_quiz/shared/routes.dart';
 import 'package:geo_quiz/shared/theme.dart';
@@ -20,13 +21,15 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
-      routerConfig: Routes.router,
-      debugShowCheckedModeBanner: false,
-      title: 'GeoQuiz',
-      theme: appTheme,
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
-      supportedLocales: AppLocalizations.supportedLocales,
+    return ProviderScope(
+      child: MaterialApp.router(
+        routerConfig: Routes.router,
+        debugShowCheckedModeBanner: false,
+        title: 'GeoQuiz',
+        theme: appTheme,
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+      ),
     );
   }
 }
