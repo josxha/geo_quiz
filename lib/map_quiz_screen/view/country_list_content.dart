@@ -14,7 +14,7 @@ class CountryListContent extends ConsumerStatefulWidget {
 }
 
 class _CountryListContentState extends ConsumerState<CountryListContent> {
-  final _searchController = TextEditingController();
+  late final _searchController;
   final _scrollController = ScrollController();
   final _searchBarFocus = FocusNode();
 
@@ -24,6 +24,8 @@ class _CountryListContentState extends ConsumerState<CountryListContent> {
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       _searchBarFocus.requestFocus();
     });
+    final gameState = ref.read(mapGameStateProvider);
+    _searchController = TextEditingController(text: gameState.listFilter);
   }
 
   @override

@@ -26,12 +26,6 @@ class _GameScreenState extends State<GameScreen> {
   var _gamePaused = false;
 
   @override
-  void initState() {
-    widget.stopwatch?.start();
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: _onWillPop,

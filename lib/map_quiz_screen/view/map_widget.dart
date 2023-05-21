@@ -81,32 +81,46 @@ class MapWidgetState extends ConsumerState<MapWidget> {
           .toList(growable: false);
       return Poly.isPointInPolygon(point, points);
     }) as CountryPolygon?;
+
     if (polygon == null) {
       debugPrint('No country pressed');
       return;
     }
-    await gameState.onMapClicked(
-      latLng: latLng,
-      openCountryListPage: !isBigScreen
-          ? null
-          : () async {
-              await Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => const CountryList(),
-                ),
-              );
-              gameState.reloadMapPolygons();
-            },
-      showEndDialog: () => showDialog(
+    final state = polygon.state;
+    debugPrint(polygon.state.country.name);
+
+    // abort if guessed too much
+    final attempts = state.tries;
+    if (attempts >= gameState.maxTries) return;
+    if (state.isFinished) return;
+
+    // get guess if selection is null
+    if (gameState.countryListSelection == null) {
+      if (!isBigScreen) {
+        await Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => const CountryList(),
+          ),
+        );
+        gameState.countryMapSelection = polygon.state.country;
+        gameState.reloadMapPolygons();
+      }
+    }
+    if (gameState.countryListSelection == null) return;
+
+    // save attempt
+    gameState.addGuess();
+
+    // show end dialog if game is finished
+    if (gameState.isFinished) {
+      await showDialog(
         context: context,
         builder: (context) => EndDialog(
           correct: gameState.amountFinished,
           wrong: gameState.amountWrong,
           time: gameState.stopwatch.elapsed,
         ),
-      ),
-    );
-    gameState.countryMapSelection = polygon.state.country;
-    debugPrint(polygon.state.country.name);
+      );
+    }
   }
 }

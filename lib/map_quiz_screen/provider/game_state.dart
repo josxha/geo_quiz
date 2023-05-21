@@ -17,10 +17,8 @@ final mapGameStateProvider = ChangeNotifierProvider.autoDispose<MapGameState>(
 class MapGameState with ChangeNotifier {
   final _prefService = GetIt.I<PrefService>();
   final stopwatch = Stopwatch();
-  final Map<String, dynamic>? geoJson;
-  late final geoJsonParser = GeoJsonParser(
-    polygonCreationCallback: _polygonCreationCallback,
-  );
+  Map<String, dynamic>? geoJson;
+  late GeoJsonParser geoJsonParser;
   final _states = <String, CountryState>{};
 
   Country? _countryListSelection;
@@ -30,10 +28,20 @@ class MapGameState with ChangeNotifier {
   List<Country> _filteredCountries = [];
 
   MapGameState(this.geoJson) {
-    for (final feature in geoJson?['features']) {
-      final code = feature['iso_a2'];
-      final name = feature['name'];
-      _states[code] = CountryState(Country(code: code, name: name));
+    geoJsonParser = GeoJsonParser(
+      polygonCreationCallback: (points, holes, properties) =>
+          _polygonCreationCallback(points, holes, properties),
+    );
+    if (geoJson != null) {
+      for (final feature in geoJson!['features']) {
+        final properties = feature['properties'];
+        final code = properties['iso_a2'];
+        final name = properties['name'];
+        _states[code] = CountryState(Country(code: code, name: name));
+      }
+      reloadMapPolygons();
+      resetListFilter();
+      stopwatch.start();
     }
   }
 
@@ -53,6 +61,8 @@ class MapGameState with ChangeNotifier {
   int get amountTotal => _states.values.length;
 
   double get progress => amountFinished / amountTotal;
+
+  int get maxTries => _prefService.maxTries;
 
   CountryState getStateForCountryCode(String code) => _states[code]!;
 
@@ -92,8 +102,9 @@ class MapGameState with ChangeNotifier {
   List<Country> get filteredCountries => _filteredCountries;
 
   void reloadMapPolygons() {
+    if (geoJson == null) return;
     geoJsonParser.parseGeoJson(geoJson!);
-    notifyListeners();
+    //notifyListeners();
   }
 
   Polygon _polygonCreationCallback(
@@ -101,7 +112,7 @@ class MapGameState with ChangeNotifier {
     List<List<LatLng>>? holePointsList,
     Map<String, dynamic> properties,
   ) {
-    final countryCode = geoJson?['features']['properties']['iso_a2'];
+    final countryCode = properties['iso_a2'];
     return CountryPolygon(
       points: points,
       holePointsList: holePointsList,
@@ -111,28 +122,6 @@ class MapGameState with ChangeNotifier {
           ? ShowLabel.ifFinished
           : ShowLabel.never,
     );
-  }
-
-  Future<void> onMapClicked({
-    required LatLng latLng,
-    required VoidCallback showEndDialog,
-    required VoidCallback? openCountryListPage,
-  }) async {
-    // abort if guessed too much
-    final state = _states[_countryMapSelection!.code]!;
-    final attempts = state.tries;
-    if (attempts >= _prefService.maxTries) return;
-    if (state.isFinished) return;
-
-    // get guess if selection is null
-    if (countryListSelection == null) {
-      openCountryListPage?.call();
-    }
-    if (countryListSelection == null) return;
-
-    // save attempt
-    addGuess();
-    if (isFinished) showEndDialog();
   }
 
   void addGuess() {

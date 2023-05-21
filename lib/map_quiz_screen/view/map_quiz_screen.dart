@@ -29,6 +29,7 @@ class MapQuizScreenState extends ConsumerState<MapQuizScreen> {
     return GameScreen(
       stopwatch: gameState.stopwatch,
       progress: gameState.progress,
+      errors: gameState.amountWrong == 0 ? null : gameState.amountWrong,
       floatingActionButton: bigScreen
           ? null
           : FloatingActionButton.extended(
