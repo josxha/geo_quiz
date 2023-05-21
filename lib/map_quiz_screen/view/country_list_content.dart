@@ -14,7 +14,7 @@ class CountryListContent extends ConsumerStatefulWidget {
 }
 
 class _CountryListContentState extends ConsumerState<CountryListContent> {
-  late final _searchController;
+  late final TextEditingController _searchController;
   final _scrollController = ScrollController();
   final _searchBarFocus = FocusNode();
 
