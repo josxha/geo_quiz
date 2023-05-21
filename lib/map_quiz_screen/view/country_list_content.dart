@@ -41,7 +41,10 @@ class _CountryListContentState extends ConsumerState<CountryListContent> {
             leading: const FaIcon(FontAwesomeIcons.magnifyingGlass),
             trailing: [
               IconButton(
-                onPressed: gameState.resetListFilter,
+                onPressed: () {
+                  gameState.resetListFilter();
+                  _searchController.text = '';
+                },
                 icon: const FaIcon(FontAwesomeIcons.ban),
               ),
             ],
