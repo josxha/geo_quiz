@@ -101,10 +101,13 @@ class MapGameState with ChangeNotifier {
 
   List<Country> get filteredCountries => _filteredCountries;
 
-  void reloadMapPolygons() {
-    if (geoJson == null) return;
+  void reloadMapPolygons({bool reloadViews = false}) {
+    if (geoJson == null) {
+      debugPrint('Do not reload Map, geoJson is null  ');
+      return;
+    }
     geoJsonParser.parseGeoJson(geoJson!);
-    //notifyListeners();
+    if (reloadViews) notifyListeners();
   }
 
   Polygon _polygonCreationCallback(
@@ -135,5 +138,6 @@ class MapGameState with ChangeNotifier {
     _countryListSelection = null;
     _countryMapSelection = null;
     reloadMapPolygons();
+    notifyListeners();
   }
 }

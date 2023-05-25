@@ -94,6 +94,8 @@ class MapWidgetState extends ConsumerState<MapWidget> {
     if (attempts >= gameState.maxTries) return;
     if (state.isFinished) return;
 
+    gameState.countryMapSelection = polygon.state.country;
+
     // get guess if selection is null
     if (gameState.countryListSelection == null) {
       if (!isBigScreen) {
@@ -102,8 +104,9 @@ class MapWidgetState extends ConsumerState<MapWidget> {
             builder: (context) => const CountryList(),
           ),
         );
-        gameState.countryMapSelection = polygon.state.country;
-        gameState.reloadMapPolygons();
+      } else {
+        // reload map to show selection on map
+        gameState.reloadMapPolygons(reloadViews: true);
       }
     }
     if (gameState.countryListSelection == null) return;

@@ -1,5 +1,5 @@
 class PrefService {
-  bool showTime = true;
+  bool showTime = false;
   int maxTries = 3;
   bool labelCountriesAfterFinished = true;
 
