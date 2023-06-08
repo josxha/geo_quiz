@@ -1,4 +1,5 @@
 import 'package:collection/collection.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:geo_quiz/map_quiz_screen/model/country_polygon.dart';
 import 'package:geo_quiz/map_quiz_screen/provider/game_state.dart';
@@ -57,7 +58,7 @@ class MapWidgetState extends ConsumerState<MapWidget> {
           // ),
           PolygonLayer(
             polygons: gameState.geoJsonParser.polygons,
-            // polygonCulling: true, // throws exceptions on hot reload
+            polygonCulling: !kDebugMode, // throws exceptions on hot reload
           ),
           // PolylineLayer(polylines: geoJson.polylines),
           // MarkerLayer(markers: geoJson.markers),
