@@ -40,8 +40,8 @@ class MapWidgetState extends ConsumerState<MapWidget> {
           minZoom: 1,
           interactiveFlags: InteractiveFlag.all & ~InteractiveFlag.rotate,
           maxBounds: LatLngBounds(
-            LatLng(-60, -180),
-            LatLng(90, 180),
+            const LatLng(-60, -180),
+            const LatLng(90, 180),
           ),
           slideOnBoundaries: true,
           boundsOptions: const FitBoundsOptions(inside: true),
