@@ -70,14 +70,20 @@ class _FlagQuizScreenState extends State<FlagQuizScreen> {
           child: Center(
             child: Column(
               children: [
-                const Spacer(),
-                SvgPicture.asset(
-                  'assets/flags/${_correctCountry.code.toLowerCase()}.svg',
+                const SizedBox(height: 30),
+                Container(
+                  constraints: const BoxConstraints(maxHeight: 300),
+                  child: SvgPicture.asset(
+                    'assets/flags/${_correctCountry.code.toLowerCase()}.svg',
+                    allowDrawingOutsideViewBox: false,
+                  ),
                 ),
                 const Spacer(),
                 Wrap(
                   runSpacing: 16,
                   spacing: 16,
+                  alignment: WrapAlignment.center,
+                  crossAxisAlignment: WrapCrossAlignment.center,
                   children: _selectedCountries.map((e) {
                     final isCorrectButton = e.code == _correctCountry.code;
                     return MaterialButton(
