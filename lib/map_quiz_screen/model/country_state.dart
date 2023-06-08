@@ -14,6 +14,7 @@ class CountryState {
   Color toColor() {
     if (isSelected) return Colors.blueAccent;
     if (answeredCorrect) return Colors.lightGreen;
+    if (answeredWrong) return Colors.redAccent;
     if (tries > 0) return Colors.amber;
     return Colors.grey;
   }

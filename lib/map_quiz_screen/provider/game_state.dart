@@ -72,6 +72,14 @@ class MapGameState with ChangeNotifier {
   Country? get countryMapSelection => _countryMapSelection;
 
   set countryMapSelection(Country? value) {
+    // deselect old map polygon
+    if (_countryMapSelection != null) {
+      _states[_countryMapSelection!.code]!.isSelected = false;
+    }
+    // set new polygon as selected
+    if (value != null) {
+      _states[value.code]!.isSelected = true;
+    }
     _countryMapSelection = value;
     notifyListeners();
   }
@@ -108,7 +116,6 @@ class MapGameState with ChangeNotifier {
   List<Country> get filteredCountries => _filteredCountries;
 
   void reloadMapPolygons({bool reloadViews = false}) {
-    debugPrint('reloadMapPolygons');
     if (geoJson == null) {
       debugPrint('Do not reload Map, geoJson is null  ');
       return;
@@ -152,7 +159,7 @@ class MapGameState with ChangeNotifier {
 
     // clear selection
     _countryListSelection = null;
-    _countryMapSelection = null;
+    countryMapSelection = null; // sets the polygon selection too
     // update map
     reloadMapPolygons();
     // update country list
