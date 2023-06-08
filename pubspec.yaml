@@ -32,6 +32,7 @@ dev_dependencies:
   riverpod_generator: ^2.2.3
   riverpod_lint: ^1.3.2
   total_lints: ^2.19.0 # very strict set of lints
+  flutter_launcher_icons: ^0.13.1
 
 dependency_overrides:
   flutter_map_geojson:
@@ -46,3 +47,21 @@ flutter:
     - assets/countries.json
     - assets/background.jpg
     - assets/flags/
+
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/icon.png"
+  min_sdk_android: 21 # android min sdk min:16, default 21
+  web:
+    generate: true
+    image_path: "assets/icon.png"
+    background_color: "#000000"
+    theme_color: "#467012"
+  windows:
+    generate: true
+    image_path: "assets/icon.png"
+    icon_size: 48 # min:48, max:256, default: 48
+  macos:
+    generate: true
+    image_path: "assets/icon.png"
