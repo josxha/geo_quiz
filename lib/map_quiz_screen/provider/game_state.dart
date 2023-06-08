@@ -76,6 +76,12 @@ class MapGameState with ChangeNotifier {
     if (_countryMapSelection != null) {
       _states[_countryMapSelection!.code]!.isSelected = false;
     }
+    if (_countryMapSelection == value) {
+      // deselect if same country clicked again
+      _countryMapSelection = null;
+      notifyListeners();
+      return;
+    }
     // set new polygon as selected
     if (value != null) {
       _states[value.code]!.isSelected = true;
@@ -87,7 +93,14 @@ class MapGameState with ChangeNotifier {
   Country? get countryListSelection => _countryListSelection;
 
   set countryListSelection(Country? value) {
-    _countryListSelection = value;
+    if (_countryListSelection == value) {
+      _countryListSelection = null;
+    } else {
+      _countryListSelection = value;
+    }
+    if (_countryMapSelection != null) {
+      addGuess();
+    }
     notifyListeners();
   }
 
