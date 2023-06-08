@@ -1,13 +1,13 @@
 import 'package:geo_quiz/shared/common.dart';
 
-class SettingsScreen extends StatefulWidget {
-  const SettingsScreen({super.key});
+class MapQuizSettingsScreen extends StatefulWidget {
+  const MapQuizSettingsScreen({super.key});
 
   @override
-  State<SettingsScreen> createState() => _SettingsScreenState();
+  State<MapQuizSettingsScreen> createState() => _MapQuizSettingsScreenState();
 }
 
-class _SettingsScreenState extends State<SettingsScreen> {
+class _MapQuizSettingsScreenState extends State<MapQuizSettingsScreen> {
   final _prefService = GetIt.I<PrefService>();
 
   @override
@@ -32,6 +32,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
         ],
       ),
+      persistentFooterButtons: [
+        MaterialButton(
+          color: Colors.lightGreen,
+          onPressed: () => context.pushNamed(Routes.mapQuiz),
+          child: const Padding(
+            padding: EdgeInsets.all(8),
+            child: Text('Spiel starten'),
+          ),
+        ),
+      ],
     );
   }
 }

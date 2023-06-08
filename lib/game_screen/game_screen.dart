@@ -98,6 +98,7 @@ class _GameScreenState extends State<GameScreen> {
       widget.stopwatch?.start();
       return false;
     }
-    return true;
+    context.goNamed(Routes.start);
+    return false;
   }
 }

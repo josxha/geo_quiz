@@ -13,7 +13,7 @@ class StartScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final buttonData = [
       (
-        () => context.pushNamed(Routes.mapQuiz),
+        () => context.pushNamed(Routes.mapQuizSettings),
         FontAwesomeIcons.map,
         AppLocalizations.of(context)!.startGame,
       ),
