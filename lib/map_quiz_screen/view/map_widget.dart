@@ -57,7 +57,8 @@ class MapWidgetState extends ConsumerState<MapWidget> {
           //   urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
           // ),
           PolygonLayer(
-            polygons: gameState.geoJsonParser.polygons,
+            polygons: gameState.polygons,
+            // ignore: avoid_redundant_argument_values
             polygonCulling: !kDebugMode, // throws exceptions on hot reload
           ),
           // PolylineLayer(polylines: geoJson.polylines),
@@ -75,8 +76,7 @@ class MapWidgetState extends ConsumerState<MapWidget> {
     // find pressed country
     final gameState = ref.read(mapGameStateProvider);
     final point = Point(x: latLng.latitude, y: latLng.longitude);
-    final polygon =
-        gameState.geoJsonParser.polygons.firstWhereOrNull((polygon) {
+    final polygon = gameState.polygons.firstWhereOrNull((polygon) {
       final points = polygon.points
           .map((e) => Point(x: e.latitude, y: e.longitude))
           .toList(growable: false);
@@ -105,10 +105,9 @@ class MapWidgetState extends ConsumerState<MapWidget> {
             builder: (context) => const CountryList(),
           ),
         );
-      } else {
-        // reload map to show selection on map
-        gameState.reloadMapPolygons(reloadViews: true);
       }
+      // reload map to show selection on map
+      gameState.reloadMapPolygons(reloadViews: true);
     }
     if (gameState.countryListSelection == null) return;
 

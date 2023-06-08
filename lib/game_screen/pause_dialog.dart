@@ -14,14 +14,20 @@ class PauseDialog extends StatelessWidget {
             Navigator.of(context).pop(true);
           },
           color: Colors.lightGreen,
-          child: Text(AppLocalizations.of(context)!.continuePlaying),
+          child: Padding(
+            padding: const EdgeInsets.all(8),
+            child: Text(AppLocalizations.of(context)!.continuePlaying),
+          ),
         ),
         MaterialButton(
           onPressed: () {
             Navigator.of(context).pop(false);
           },
           color: Colors.redAccent,
-          child: Text(AppLocalizations.of(context)!.endGame),
+          child: Padding(
+            padding: const EdgeInsets.all(8),
+            child: Text(AppLocalizations.of(context)!.endGame),
+          ),
         ),
       ],
     );

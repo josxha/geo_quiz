@@ -14,7 +14,6 @@ class CountryListContent extends ConsumerStatefulWidget {
 }
 
 class _CountryListContentState extends ConsumerState<CountryListContent> {
-  late final TextEditingController _searchController;
   final _scrollController = ScrollController();
   final _searchBarFocus = FocusNode();
 
@@ -24,8 +23,6 @@ class _CountryListContentState extends ConsumerState<CountryListContent> {
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       _searchBarFocus.requestFocus();
     });
-    final gameState = ref.read(mapGameStateProvider);
-    _searchController = TextEditingController(text: gameState.listFilter);
   }
 
   @override
@@ -37,14 +34,11 @@ class _CountryListContentState extends ConsumerState<CountryListContent> {
           padding: const EdgeInsets.all(16),
           child: SearchBar(
             focusNode: _searchBarFocus,
-            controller: _searchController,
+            controller: gameState.searchController,
             leading: const FaIcon(FontAwesomeIcons.magnifyingGlass),
             trailing: [
               IconButton(
-                onPressed: () {
-                  gameState.resetListFilter();
-                  _searchController.text = '';
-                },
+                onPressed: () => gameState.resetListFilter(),
                 icon: const FaIcon(FontAwesomeIcons.ban),
               ),
             ],

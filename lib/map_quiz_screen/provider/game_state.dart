@@ -18,17 +18,19 @@ class MapGameState with ChangeNotifier {
   final _prefService = GetIt.I<PrefService>();
   final stopwatch = Stopwatch();
   Map<String, dynamic>? geoJson;
-  late GeoJsonParser geoJsonParser;
+  late final GeoJsonParser _geoJsonParser;
+  late List<Polygon> polygons;
   final _states = <String, CountryState>{};
 
   Country? _countryListSelection;
   Country? _countryMapSelection;
+  final searchController = TextEditingController();
   String _listFilter = '';
 
   List<Country> _filteredCountries = [];
 
   MapGameState(this.geoJson) {
-    geoJsonParser = GeoJsonParser(
+    _geoJsonParser = GeoJsonParser(
       polygonCreationCallback: (points, holes, properties) =>
           _polygonCreationCallback(points, holes, properties),
     );
@@ -39,6 +41,7 @@ class MapGameState with ChangeNotifier {
         final name = properties['name'];
         _states[code] = CountryState(Country(code: code, name: name));
       }
+      _geoJsonParser.parseGeoJson(geoJson!);
       reloadMapPolygons();
       resetListFilter();
       stopwatch.start();
@@ -97,16 +100,29 @@ class MapGameState with ChangeNotifier {
     notifyListeners();
   }
 
-  void resetListFilter() => listFilter = '';
+  void resetListFilter() {
+    searchController.clear();
+    listFilter = '';
+  }
 
   List<Country> get filteredCountries => _filteredCountries;
 
   void reloadMapPolygons({bool reloadViews = false}) {
+    debugPrint('reloadMapPolygons');
     if (geoJson == null) {
       debugPrint('Do not reload Map, geoJson is null  ');
       return;
     }
-    geoJsonParser.parseGeoJson(geoJson!);
+    polygons = [];
+    for (final polygon in _geoJsonParser.polygons.cast<CountryPolygon>()) {
+      polygons.add(
+        _polygonCreationCallback(
+          polygon.points,
+          polygon.holePointsList,
+          polygon.properties,
+        ),
+      );
+    }
     if (reloadViews) notifyListeners();
   }
 
@@ -137,7 +153,10 @@ class MapGameState with ChangeNotifier {
     // clear selection
     _countryListSelection = null;
     _countryMapSelection = null;
+    // update map
     reloadMapPolygons();
-    notifyListeners();
+    // update country list
+    resetListFilter(); // calls notifyListeners
+    //notifyListeners();
   }
 }
