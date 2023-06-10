@@ -39,7 +39,9 @@ class MapWidgetState extends ConsumerState<MapWidget> {
           zoom: 2.5,
           maxZoom: 6,
           minZoom: 1,
-          interactiveFlags: InteractiveFlag.all & ~InteractiveFlag.rotate,
+          interactiveFlags: InteractiveFlag.all &
+              ~InteractiveFlag.rotate &
+              ~InteractiveFlag.doubleTapZoom,
           maxBounds: LatLngBounds(
             const LatLng(-60, -180),
             const LatLng(90, 180),
