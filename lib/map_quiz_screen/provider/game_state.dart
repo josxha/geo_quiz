@@ -1,8 +1,8 @@
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map_geojson/flutter_map_geojson.dart';
 import 'package:geo_quiz/map_quiz_screen/model/country_polygon.dart';
 import 'package:geo_quiz/map_quiz_screen/model/country_state.dart';
 import 'package:geo_quiz/map_quiz_screen/provider/geo_json.dart';
+import 'package:geo_quiz/map_quiz_screen/utils/geojson_parser.dart';
 import 'package:geo_quiz/shared/common.dart';
 import 'package:geo_quiz/shared/countries.dart';
 import 'package:latlong2/latlong.dart';
@@ -37,8 +37,8 @@ class MapGameState with ChangeNotifier {
     if (geoJson != null) {
       for (final feature in geoJson!['features']) {
         final properties = feature['properties'];
-        final code = properties['iso_a2'];
-        final name = properties['name'];
+        final code = properties['ISO_A3'];
+        final name = properties['ADMIN'];
         _states[code] = CountryState(Country(code: code, name: name));
       }
       _geoJsonParser.parseGeoJson(geoJson!);
@@ -118,6 +118,7 @@ class MapGameState with ChangeNotifier {
         })
         .map((e) => e.country)
         .toList(growable: false);
+    _filteredCountries.sort((a, b) => a.name.compareTo(b.name));
     notifyListeners();
   }
 
@@ -151,7 +152,7 @@ class MapGameState with ChangeNotifier {
     List<List<LatLng>>? holePointsList,
     Map<String, dynamic> properties,
   ) {
-    final countryCode = properties['iso_a2'];
+    final countryCode = properties['ISO_A3'];
     return CountryPolygon(
       points: points,
       holePointsList: holePointsList,
