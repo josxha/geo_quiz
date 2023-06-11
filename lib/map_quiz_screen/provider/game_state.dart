@@ -185,8 +185,8 @@ class MapGameState with ChangeNotifier {
     // update map
     reloadMapPolygons();
     // update country list
-    resetListFilter(); // calls notifyListeners
-    //notifyListeners();
+    //resetListFilter(); // calls notifyListeners
+    notifyListeners();
   }
 
   void onMapPositionChanged(MapPosition position, bool hasGesture) {
