@@ -17,10 +17,8 @@ final mapGameStateProvider = ChangeNotifierProvider.autoDispose<MapGameState>(
 class MapGameState with ChangeNotifier {
   final _prefService = GetIt.I<PrefService>();
   final stopwatch = Stopwatch();
-  GeoJsonTuple? geoJson;
-  late List<Polygon> polygonsBig;
-  late List<Polygon> polygonsMid;
-  late List<Polygon> polygonsSmall;
+  List<Map<String, dynamic>>? geoJson;
+  late List<List<Polygon>> polygonResolutions;
   List<Polygon> _activeMapPolygons = [];
   List<Polygon> polygons = [];
   final _states = <String, CountryState>{};
@@ -36,32 +34,22 @@ class MapGameState with ChangeNotifier {
 
   MapGameState(this.geoJson) {
     if (geoJson != null) {
-      for (final feature in geoJson!.$3['features']) {
+      for (final feature in geoJson!.first['features']) {
         final properties = feature['properties'];
         final code = properties['ISO_A3'];
         final name = properties['ADMIN'];
         _states[code] = CountryState(Country(code: code, name: name));
       }
       // store polygons
-      var geoJsonParser = GeoJsonParser(
-        polygonCreationCallback: (points, holes, properties) =>
-            _polygonCreationCallback(points, holes, properties),
-      );
-      geoJsonParser.parseGeoJson(geoJson!.$1);
-      polygonsBig = geoJsonParser.polygons;
-      geoJsonParser = GeoJsonParser(
-        polygonCreationCallback: (points, holes, properties) =>
-            _polygonCreationCallback(points, holes, properties),
-      );
-      geoJsonParser.parseGeoJson(geoJson!.$2);
-      polygonsMid = geoJsonParser.polygons;
-      geoJsonParser = GeoJsonParser(
-        polygonCreationCallback: (points, holes, properties) =>
-            _polygonCreationCallback(points, holes, properties),
-      );
-      geoJsonParser.parseGeoJson(geoJson!.$3);
-      polygonsSmall = geoJsonParser.polygons;
-      _activeMapPolygons = polygonsSmall;
+      polygonResolutions = geoJson!.map((json) {
+        final geoJsonParser = GeoJsonParser(
+          polygonCreationCallback: (points, holes, properties) =>
+              _polygonCreationCallback(points, holes, properties),
+        );
+        geoJsonParser.parseGeoJson(json);
+        return geoJsonParser.polygons;
+      }).toList(growable: false);
+      _activeMapPolygons = polygonResolutions.first; // lowest resolution
       reloadMapPolygons();
       resetListFilter();
       stopwatch.start();
@@ -204,14 +192,17 @@ class MapGameState with ChangeNotifier {
   void onMapPositionChanged(MapPosition position, bool hasGesture) {
     if (position.zoom == null) return;
     final zoom = position.zoom!;
-    if (zoom >= 6.5 && lastZoom < 6.5) {
-      _activeMapPolygons = polygonsBig;
+    if (zoom >= 9 && lastZoom < 9) {
+      _activeMapPolygons = polygonResolutions[3];
       reloadMapPolygons(reloadViews: true);
-    } else if (zoom >= 4 && lastZoom < 4) {
-      _activeMapPolygons = polygonsMid;
+    } else if (zoom >= 6.5 && (lastZoom < 6.5 || lastZoom > 9)) {
+      _activeMapPolygons = polygonResolutions[2];
+      reloadMapPolygons(reloadViews: true);
+    } else if (zoom >= 4 && (lastZoom < 4 || lastZoom > 6.5)) {
+      _activeMapPolygons = polygonResolutions[1];
       reloadMapPolygons(reloadViews: true);
     } else if (zoom <= 4 && lastZoom > 4) {
-      _activeMapPolygons = polygonsSmall;
+      _activeMapPolygons = polygonResolutions[0];
       reloadMapPolygons(reloadViews: true);
     }
     lastZoom = zoom;

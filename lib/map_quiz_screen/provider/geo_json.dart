@@ -3,20 +3,17 @@ import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:geo_quiz/shared/common.dart';
 
-final geoJsonProvider = FutureProvider<GeoJsonTuple>((ref) async {
+final geoJsonProvider = FutureProvider<List<Map<String, dynamic>>>((ref) async {
   final jsonStrings = await Future.wait([
-    rootBundle.loadString('assets/geo-json/countries-big.json'),
-    rootBundle.loadString('assets/geo-json/countries-mid.json'),
-    rootBundle.loadString('assets/geo-json/countries-small.json'),
+    rootBundle.loadString('assets/geo-json/countries-res1.json'),
+    rootBundle.loadString('assets/geo-json/countries-res2.json'),
+    rootBundle.loadString('assets/geo-json/countries-res3.json'),
+    rootBundle.loadString('assets/geo-json/countries-res4.json'),
   ]);
-  final Map<String, dynamic> geoJsonBig = jsonDecode(jsonStrings[0]);
-  final Map<String, dynamic> geoJsonMid = jsonDecode(jsonStrings[1]);
-  final Map<String, dynamic> geoJsonSmall = jsonDecode(jsonStrings[2]);
-  return (geoJsonBig, geoJsonMid, geoJsonSmall);
+  return [
+    jsonDecode(jsonStrings[0]),
+    jsonDecode(jsonStrings[1]),
+    jsonDecode(jsonStrings[2]),
+    jsonDecode(jsonStrings[3]),
+  ];
 });
-
-typedef GeoJsonTuple = (
-  Map<String, dynamic>,
-  Map<String, dynamic>,
-  Map<String, dynamic>,
-);
