@@ -193,15 +193,19 @@ class MapGameState with ChangeNotifier {
     if (position.zoom == null) return;
     final zoom = position.zoom!;
     if (zoom >= 9 && lastZoom < 9) {
+      debugPrint('tile resolution 3');
       _activeMapPolygons = polygonResolutions[3];
       reloadMapPolygons(reloadViews: true);
-    } else if (zoom >= 6.5 && (lastZoom < 6.5 || lastZoom > 9)) {
+    } else if (zoom >= 6.5 && zoom < 9 && (lastZoom < 6.5 || lastZoom >= 9)) {
+      debugPrint('tile resolution 2');
       _activeMapPolygons = polygonResolutions[2];
       reloadMapPolygons(reloadViews: true);
-    } else if (zoom >= 4 && (lastZoom < 4 || lastZoom > 6.5)) {
+    } else if (zoom >= 4 && zoom < 6.5 && (lastZoom < 4 || lastZoom >= 6.5)) {
+      debugPrint('tile resolution 1');
       _activeMapPolygons = polygonResolutions[1];
       reloadMapPolygons(reloadViews: true);
-    } else if (zoom <= 4 && lastZoom > 4) {
+    } else if (zoom < 4 && lastZoom >= 4) {
+      debugPrint('tile resolution 0');
       _activeMapPolygons = polygonResolutions[0];
       reloadMapPolygons(reloadViews: true);
     }
