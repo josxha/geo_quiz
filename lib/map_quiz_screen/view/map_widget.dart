@@ -36,7 +36,7 @@ class MapWidgetState extends ConsumerState<MapWidget> {
         mapController: _controller,
         options: MapOptions(
           zoom: gameState.lastZoom,
-          maxZoom: 10,
+          maxZoom: 15,
           minZoom: 1,
           interactiveFlags: InteractiveFlag.all &
               ~InteractiveFlag.rotate &
