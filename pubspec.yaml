@@ -12,7 +12,7 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   flutter_map: ^5.0.0
-  flutter_map_geojson: ^1.0.1
+  #flutter_map_geojson: ^1.0.1
   latlong2: ^0.9.0
   point_in_polygon: ^1.0.0
   collection: ^1.17.1
@@ -31,21 +31,21 @@ dev_dependencies:
   custom_lint: ^0.4.0
   riverpod_generator: ^2.2.3
   riverpod_lint: ^1.3.2
-  total_lints: ^2.19.0 # very strict set of lints
+  total_lints: ^3.0.0 # very strict set of lints
   flutter_launcher_icons: ^0.13.1
 
-dependency_overrides:
-  flutter_map_geojson:
-    git:
-      url: https://github.com/josxha/flutter_map_geojson.git
-      ref: 164e74e5ee072f527ae6eac85a3b25df9257d7ea
+#dependency_overrides:
+#  flutter_map_geojson:
+#    git:
+#      url: https://github.com/josxha/flutter_map_geojson.git
+#      ref: 164e74e5ee072f527ae6eac85a3b25df9257d7ea
 
 flutter:
   uses-material-design: true
   generate: true # for localization
   assets:
-    - assets/countries.json
     - assets/background.jpg
+    - assets/geo-json/
     - assets/flags/
 
 flutter_launcher_icons:

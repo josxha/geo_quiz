@@ -36,8 +36,8 @@ class MapWidgetState extends ConsumerState<MapWidget> {
       child: FlutterMap(
         mapController: _controller,
         options: MapOptions(
-          zoom: 2.5,
-          maxZoom: 6,
+          zoom: gameState.lastZoom,
+          maxZoom: 10,
           minZoom: 1,
           interactiveFlags: InteractiveFlag.all &
               ~InteractiveFlag.rotate &
@@ -48,6 +48,7 @@ class MapWidgetState extends ConsumerState<MapWidget> {
           ),
           slideOnBoundaries: true,
           boundsOptions: const FitBoundsOptions(inside: true),
+          onPositionChanged: gameState.onMapPositionChanged,
           onTap: (_, point) async => _onMapPressed(
             context,
             point,

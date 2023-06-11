@@ -47,6 +47,7 @@ class _FlagQuizScreenState extends State<FlagQuizScreen> {
 
   @override
   void initState() {
+    _stopwatch.start();
     newFlag();
     super.initState();
   }
@@ -75,7 +76,6 @@ class _FlagQuizScreenState extends State<FlagQuizScreen> {
                   constraints: const BoxConstraints(maxHeight: 300),
                   child: SvgPicture.asset(
                     'assets/flags/${_correctCountry.code.toLowerCase()}.svg',
-                    allowDrawingOutsideViewBox: false,
                   ),
                 ),
                 const Spacer(),

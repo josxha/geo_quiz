@@ -17,9 +17,12 @@ final mapGameStateProvider = ChangeNotifierProvider.autoDispose<MapGameState>(
 class MapGameState with ChangeNotifier {
   final _prefService = GetIt.I<PrefService>();
   final stopwatch = Stopwatch();
-  Map<String, dynamic>? geoJson;
-  late final GeoJsonParser _geoJsonParser;
-  late List<Polygon> polygons;
+  GeoJsonTuple? geoJson;
+  late List<Polygon> polygonsBig;
+  late List<Polygon> polygonsMid;
+  late List<Polygon> polygonsSmall;
+  List<Polygon> _activeMapPolygons = [];
+  List<Polygon> polygons = [];
   final _states = <String, CountryState>{};
 
   Country? _countryListSelection;
@@ -29,19 +32,36 @@ class MapGameState with ChangeNotifier {
 
   List<Country> _filteredCountries = [];
 
+  double lastZoom = 2.5;
+
   MapGameState(this.geoJson) {
-    _geoJsonParser = GeoJsonParser(
-      polygonCreationCallback: (points, holes, properties) =>
-          _polygonCreationCallback(points, holes, properties),
-    );
     if (geoJson != null) {
-      for (final feature in geoJson!['features']) {
+      for (final feature in geoJson!.$3['features']) {
         final properties = feature['properties'];
         final code = properties['ISO_A3'];
         final name = properties['ADMIN'];
         _states[code] = CountryState(Country(code: code, name: name));
       }
-      _geoJsonParser.parseGeoJson(geoJson!);
+      // store polygons
+      var geoJsonParser = GeoJsonParser(
+        polygonCreationCallback: (points, holes, properties) =>
+            _polygonCreationCallback(points, holes, properties),
+      );
+      geoJsonParser.parseGeoJson(geoJson!.$1);
+      polygonsBig = geoJsonParser.polygons;
+      geoJsonParser = GeoJsonParser(
+        polygonCreationCallback: (points, holes, properties) =>
+            _polygonCreationCallback(points, holes, properties),
+      );
+      geoJsonParser.parseGeoJson(geoJson!.$2);
+      polygonsMid = geoJsonParser.polygons;
+      geoJsonParser = GeoJsonParser(
+        polygonCreationCallback: (points, holes, properties) =>
+            _polygonCreationCallback(points, holes, properties),
+      );
+      geoJsonParser.parseGeoJson(geoJson!.$3);
+      polygonsSmall = geoJsonParser.polygons;
+      _activeMapPolygons = polygonsSmall;
       reloadMapPolygons();
       resetListFilter();
       stopwatch.start();
@@ -135,7 +155,7 @@ class MapGameState with ChangeNotifier {
       return;
     }
     polygons = [];
-    for (final polygon in _geoJsonParser.polygons.cast<CountryPolygon>()) {
+    for (final polygon in _activeMapPolygons.cast<CountryPolygon>()) {
       polygons.add(
         _polygonCreationCallback(
           polygon.points,
@@ -179,5 +199,21 @@ class MapGameState with ChangeNotifier {
     // update country list
     resetListFilter(); // calls notifyListeners
     //notifyListeners();
+  }
+
+  void onMapPositionChanged(MapPosition position, bool hasGesture) {
+    if (position.zoom == null) return;
+    final zoom = position.zoom!;
+    if (zoom >= 6.5 && lastZoom < 6.5) {
+      _activeMapPolygons = polygonsBig;
+      reloadMapPolygons(reloadViews: true);
+    } else if (zoom >= 4 && lastZoom < 4) {
+      _activeMapPolygons = polygonsMid;
+      reloadMapPolygons(reloadViews: true);
+    } else if (zoom <= 4 && lastZoom > 4) {
+      _activeMapPolygons = polygonsSmall;
+      reloadMapPolygons(reloadViews: true);
+    }
+    lastZoom = zoom;
   }
 }

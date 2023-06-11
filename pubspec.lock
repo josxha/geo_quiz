@@ -275,15 +275,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "5.0.0"
-  flutter_map_geojson:
-    dependency: "direct main"
-    description:
-      path: "."
-      ref: "164e74e5ee072f527ae6eac85a3b25df9257d7ea"
-      resolved-ref: "164e74e5ee072f527ae6eac85a3b25df9257d7ea"
-      url: "https://github.com/josxha/flutter_map_geojson.git"
-    source: git
-    version: "1.0.1"
   flutter_riverpod:
     dependency: "direct main"
     description:
@@ -349,10 +340,10 @@ packages:
     dependency: "direct main"
     description:
       name: go_router
-      sha256: abc95b139589dc7a34617bf9dfa73b02256108acfec99a6331a43d384d70bb5b
+      sha256: "9235e40f7a917c22830b64a8b3185dd4e0e2fd558b6394fa2d93dd1feb884c5c"
       url: "https://pub.dev"
     source: hosted
-    version: "8.0.0"
+    version: "8.0.1"
   graphs:
     dependency: transitive
     description:
@@ -762,10 +753,10 @@ packages:
     dependency: "direct dev"
     description:
       name: total_lints
-      sha256: "5424a55034e89a9c6198518356842dfdc33b6f0b4d557071f84d6095e5a9f8ea"
+      sha256: "1c66ce4dd1230b3e9608e75f5821befecee83f8ecabdf9a80c045525ccee452f"
       url: "https://pub.dev"
     source: hosted
-    version: "2.19.0"
+    version: "3.0.0"
   typed_data:
     dependency: transitive
     description:
