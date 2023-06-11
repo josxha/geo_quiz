@@ -41,10 +41,10 @@ class MapWidgetState extends ConsumerState<MapWidget> {
           interactiveFlags: InteractiveFlag.all &
               ~InteractiveFlag.rotate &
               ~InteractiveFlag.doubleTapZoom,
-          maxBounds: LatLngBounds(
+          /*maxBounds: LatLngBounds(
             const LatLng(-60, -180),
             const LatLng(90, 180),
-          ),
+          ),*/
           slideOnBoundaries: true,
           boundsOptions: const FitBoundsOptions(inside: true),
           onPositionChanged: gameState.onMapPositionChanged,
